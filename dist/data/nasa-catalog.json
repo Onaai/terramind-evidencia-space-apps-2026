@@ -1,0 +1,519 @@
+{
+  "schemaVersion": 1,
+  "kind": "nasa-cmr-catalog-metadata",
+  "status": "verified_catalog",
+  "observationsIncluded": false,
+  "timeSeriesIncluded": false,
+  "generatedAt": "2026-11-11T17:13:14+00:00",
+  "scope": "Public NASA CMR catalog verification; environmental series remain in demo mode.",
+  "areaDisclaimer": "Rectangular exploratory AOIs in Argentina; not official ecoregion boundaries or an exhaustive Gran Chaco mask.",
+  "period": {
+    "start": "2015-01-01",
+    "end": "2025-12-31"
+  },
+  "areas": {
+    "seco": {
+      "label": "Chaco seco · ventana exploratoria",
+      "bbox": [
+        -63.5,
+        -25.5,
+        -62.5,
+        -24.5
+      ]
+    },
+    "transicion": {
+      "label": "Transición · ventana exploratoria",
+      "bbox": [
+        -61.5,
+        -26.5,
+        -60.5,
+        -25.5
+      ]
+    },
+    "humedo": {
+      "label": "Chaco húmedo · ventana exploratoria",
+      "bbox": [
+        -59.5,
+        -26.5,
+        -58.5,
+        -25.5
+      ]
+    }
+  },
+  "products": [
+    {
+      "key": "vegetation",
+      "short_name": "MOD13A2",
+      "version": "061",
+      "variables": [
+        "ndvi",
+        "evi"
+      ],
+      "documentation": "https://doi.org/10.5067/MODIS/MOD13A2.061",
+      "status": "verified_catalog",
+      "samples": [
+        {
+          "area": "seco",
+          "query": {
+            "url": "https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=C2565788905-LPCLOUD&bounding_box=-63.5%2C-25.5%2C-62.5%2C-24.5&temporal=2015-01-01T00%3A00%3A00Z%2C2025-12-31T23%3A59%3A59Z&page_size=1&sort_key=start_date",
+            "httpStatus": 200,
+            "retrievedAt": "2026-11-11T17:13:15+00:00",
+            "sha256": "3462c6eb73dfde246f76f52de30560ca91710a76fba7c38be31394cdd3bc5457",
+            "cmrHits": 254,
+            "rawResponseFile": "catalog-cache/1bd25a0a246fcdc2fc74.json"
+          },
+          "returnedGranules": [
+            {
+              "id": "G2597560673-LPCLOUD",
+              "title": "MOD13A2.A2014353.h12v11.061.2021316095539",
+              "time_start": "2014-12-19T00:00:00.000Z",
+              "time_end": "2015-01-03T23:59:59.000Z",
+              "data_center": "LPCLOUD",
+              "granule_size": "21.1046"
+            }
+          ],
+          "sampleOnly": true
+        },
+        {
+          "area": "transicion",
+          "query": {
+            "url": "https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=C2565788905-LPCLOUD&bounding_box=-61.5%2C-26.5%2C-60.5%2C-25.5&temporal=2015-01-01T00%3A00%3A00Z%2C2025-12-31T23%3A59%3A59Z&page_size=1&sort_key=start_date",
+            "httpStatus": 200,
+            "retrievedAt": "2026-11-11T17:13:16+00:00",
+            "sha256": "ecb198b5b268d0d1236c54785dc51b96e949415c94bf4454c87d1afce4ad75b7",
+            "cmrHits": 254,
+            "rawResponseFile": "catalog-cache/5f6686e3da16a3bf121a.json"
+          },
+          "returnedGranules": [
+            {
+              "id": "G2597560673-LPCLOUD",
+              "title": "MOD13A2.A2014353.h12v11.061.2021316095539",
+              "time_start": "2014-12-19T00:00:00.000Z",
+              "time_end": "2015-01-03T23:59:59.000Z",
+              "data_center": "LPCLOUD",
+              "granule_size": "21.1046"
+            }
+          ],
+          "sampleOnly": true
+        },
+        {
+          "area": "humedo",
+          "query": {
+            "url": "https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=C2565788905-LPCLOUD&bounding_box=-59.5%2C-26.5%2C-58.5%2C-25.5&temporal=2015-01-01T00%3A00%3A00Z%2C2025-12-31T23%3A59%3A59Z&page_size=1&sort_key=start_date",
+            "httpStatus": 200,
+            "retrievedAt": "2026-11-11T17:13:16+00:00",
+            "sha256": "d25c0be0e528d44ced6d4f1f430670b632ab667108643e98dcba613553dd3ca3",
+            "cmrHits": 254,
+            "rawResponseFile": "catalog-cache/2f5d2f55e4014b871a5b.json"
+          },
+          "returnedGranules": [
+            {
+              "id": "G2597560673-LPCLOUD",
+              "title": "MOD13A2.A2014353.h12v11.061.2021316095539",
+              "time_start": "2014-12-19T00:00:00.000Z",
+              "time_end": "2015-01-03T23:59:59.000Z",
+              "data_center": "LPCLOUD",
+              "granule_size": "21.1046"
+            }
+          ],
+          "sampleOnly": true
+        }
+      ],
+      "collectionRequest": {
+        "url": "https://cmr.earthdata.nasa.gov/search/collections.json?short_name=MOD13A2&version=061&page_size=10",
+        "httpStatus": 200,
+        "retrievedAt": "2026-11-11T17:13:15+00:00",
+        "sha256": "7bd9a19c218d64723ec247bf18afdf9437b6709287d340484c5b697692df0118",
+        "cmrHits": 1,
+        "rawResponseFile": "catalog-cache/c56a1dd57e21dce96547.json"
+      },
+      "collection": {
+        "id": "C2565788905-LPCLOUD",
+        "title": "MODIS/Terra Vegetation Indices 16-Day L3 Global 1km SIN Grid V061",
+        "short_name": "MOD13A2",
+        "version_id": "061",
+        "time_start": "2000-02-18T00:00:00.000Z",
+        "data_center": "LPCLOUD"
+      }
+    },
+    {
+      "key": "precipitation",
+      "short_name": "GPM_3IMERGM",
+      "version": "07",
+      "variables": [
+        "precip"
+      ],
+      "documentation": "https://gpm.nasa.gov/data/imerg",
+      "status": "verified_catalog",
+      "samples": [
+        {
+          "area": "seco",
+          "query": {
+            "url": "https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=C2723754851-GES_DISC&bounding_box=-63.5%2C-25.5%2C-62.5%2C-24.5&temporal=2015-01-01T00%3A00%3A00Z%2C2025-12-31T23%3A59%3A59Z&page_size=1&sort_key=start_date",
+            "httpStatus": 200,
+            "retrievedAt": "2026-11-11T17:13:17+00:00",
+            "sha256": "9d46f4d50727ff819749d03e00f7a7459bd074b46008225e6a29e45805a2ee8e",
+            "cmrHits": 129,
+            "rawResponseFile": "catalog-cache/c6d189c9be36dfa894df.json"
+          },
+          "returnedGranules": [
+            {
+              "id": "G2819257469-GES_DISC",
+              "title": "GPM_3IMERGM.07:3B-MO.MS.MRG.3IMERG.20150101-S000000-E235959.01.V07B.HDF5",
+              "time_start": "2015-01-01T00:00:00.000Z",
+              "time_end": "2015-01-31T23:59:59.999Z",
+              "data_center": "GES_DISC",
+              "granule_size": "17.3511905670166"
+            }
+          ],
+          "sampleOnly": true
+        },
+        {
+          "area": "transicion",
+          "query": {
+            "url": "https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=C2723754851-GES_DISC&bounding_box=-61.5%2C-26.5%2C-60.5%2C-25.5&temporal=2015-01-01T00%3A00%3A00Z%2C2025-12-31T23%3A59%3A59Z&page_size=1&sort_key=start_date",
+            "httpStatus": 200,
+            "retrievedAt": "2026-11-11T17:13:18+00:00",
+            "sha256": "b382f90e02c420c40c96ae9361ee5cbafe3910c2b69afccde239e9fc861570c4",
+            "cmrHits": 129,
+            "rawResponseFile": "catalog-cache/72b920888a46ab313a5a.json"
+          },
+          "returnedGranules": [
+            {
+              "id": "G2819257469-GES_DISC",
+              "title": "GPM_3IMERGM.07:3B-MO.MS.MRG.3IMERG.20150101-S000000-E235959.01.V07B.HDF5",
+              "time_start": "2015-01-01T00:00:00.000Z",
+              "time_end": "2015-01-31T23:59:59.999Z",
+              "data_center": "GES_DISC",
+              "granule_size": "17.3511905670166"
+            }
+          ],
+          "sampleOnly": true
+        },
+        {
+          "area": "humedo",
+          "query": {
+            "url": "https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=C2723754851-GES_DISC&bounding_box=-59.5%2C-26.5%2C-58.5%2C-25.5&temporal=2015-01-01T00%3A00%3A00Z%2C2025-12-31T23%3A59%3A59Z&page_size=1&sort_key=start_date",
+            "httpStatus": 200,
+            "retrievedAt": "2026-11-11T17:13:19+00:00",
+            "sha256": "41aeb97b750703d63fa9324ccef1a5913bcbdbff82dbb0a10ef2ee31e0eec25e",
+            "cmrHits": 129,
+            "rawResponseFile": "catalog-cache/615be3ed77d7206dd635.json"
+          },
+          "returnedGranules": [
+            {
+              "id": "G2819257469-GES_DISC",
+              "title": "GPM_3IMERGM.07:3B-MO.MS.MRG.3IMERG.20150101-S000000-E235959.01.V07B.HDF5",
+              "time_start": "2015-01-01T00:00:00.000Z",
+              "time_end": "2015-01-31T23:59:59.999Z",
+              "data_center": "GES_DISC",
+              "granule_size": "17.3511905670166"
+            }
+          ],
+          "sampleOnly": true
+        }
+      ],
+      "collectionRequest": {
+        "url": "https://cmr.earthdata.nasa.gov/search/collections.json?short_name=GPM_3IMERGM&version=07&page_size=10",
+        "httpStatus": 200,
+        "retrievedAt": "2026-11-11T17:13:17+00:00",
+        "sha256": "fb4625ec7c4704786c26e2736025be2eac2f963671138aeb27872be769bf97c6",
+        "cmrHits": 1,
+        "rawResponseFile": "catalog-cache/5bcda0a3d0df8a0a4e72.json"
+      },
+      "collection": {
+        "id": "C2723754851-GES_DISC",
+        "title": "GPM IMERG Final Precipitation L3 1 month 0.1 degree x 0.1 degree V07 (GPM_3IMERGM)",
+        "short_name": "GPM_3IMERGM",
+        "version_id": "07",
+        "time_start": "1998-01-01T00:00:00.000Z",
+        "time_end": "2025-09-30T23:59:59.999Z",
+        "data_center": "GES_DISC"
+      }
+    },
+    {
+      "key": "soil_moisture",
+      "short_name": "SPL3SMP",
+      "version": "009",
+      "variables": [
+        "soil"
+      ],
+      "documentation": "https://nsidc.org/data/spl3smp/versions/9",
+      "status": "verified_catalog",
+      "samples": [
+        {
+          "area": "seco",
+          "query": {
+            "url": "https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=C2938664585-NSIDC_CPRD&bounding_box=-63.5%2C-25.5%2C-62.5%2C-24.5&temporal=2015-01-01T00%3A00%3A00Z%2C2025-12-31T23%3A59%3A59Z&page_size=1&sort_key=start_date",
+            "httpStatus": 200,
+            "retrievedAt": "2026-11-11T17:13:20+00:00",
+            "sha256": "565a1c386c0b2e5077733841f39f3bb0321f79e305cf115d694ca5c5510ccc59",
+            "cmrHits": 3845,
+            "rawResponseFile": "catalog-cache/f87d647f3606edf8e2a1.json"
+          },
+          "returnedGranules": [
+            {
+              "id": "G3246864235-NSIDC_CPRD",
+              "title": "SMAP_L3_SM_P_20150331_R19240_001.h5",
+              "time_start": "2015-03-31T00:00:00.000Z",
+              "time_end": "2015-03-31T23:59:59.999Z",
+              "data_center": "NSIDC_CPRD",
+              "granule_size": "17.339301109313965"
+            }
+          ],
+          "sampleOnly": true
+        },
+        {
+          "area": "transicion",
+          "query": {
+            "url": "https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=C2938664585-NSIDC_CPRD&bounding_box=-61.5%2C-26.5%2C-60.5%2C-25.5&temporal=2015-01-01T00%3A00%3A00Z%2C2025-12-31T23%3A59%3A59Z&page_size=1&sort_key=start_date",
+            "httpStatus": 200,
+            "retrievedAt": "2026-11-11T17:13:20+00:00",
+            "sha256": "e48bc05333c089534731ee0c2000dcb2527002a9c8d69b02d6179067705294b0",
+            "cmrHits": 3845,
+            "rawResponseFile": "catalog-cache/cc71c583cc303180bd51.json"
+          },
+          "returnedGranules": [
+            {
+              "id": "G3246864235-NSIDC_CPRD",
+              "title": "SMAP_L3_SM_P_20150331_R19240_001.h5",
+              "time_start": "2015-03-31T00:00:00.000Z",
+              "time_end": "2015-03-31T23:59:59.999Z",
+              "data_center": "NSIDC_CPRD",
+              "granule_size": "17.339301109313965"
+            }
+          ],
+          "sampleOnly": true
+        },
+        {
+          "area": "humedo",
+          "query": {
+            "url": "https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=C2938664585-NSIDC_CPRD&bounding_box=-59.5%2C-26.5%2C-58.5%2C-25.5&temporal=2015-01-01T00%3A00%3A00Z%2C2025-12-31T23%3A59%3A59Z&page_size=1&sort_key=start_date",
+            "httpStatus": 200,
+            "retrievedAt": "2026-11-11T17:13:21+00:00",
+            "sha256": "e10e33b3a6c58081d99bf1acae54debde87415d6dae3b146fc9dff880fd8e437",
+            "cmrHits": 3845,
+            "rawResponseFile": "catalog-cache/f7da1d3c4dafc2db49a0.json"
+          },
+          "returnedGranules": [
+            {
+              "id": "G3246864235-NSIDC_CPRD",
+              "title": "SMAP_L3_SM_P_20150331_R19240_001.h5",
+              "time_start": "2015-03-31T00:00:00.000Z",
+              "time_end": "2015-03-31T23:59:59.999Z",
+              "data_center": "NSIDC_CPRD",
+              "granule_size": "17.339301109313965"
+            }
+          ],
+          "sampleOnly": true
+        }
+      ],
+      "collectionRequest": {
+        "url": "https://cmr.earthdata.nasa.gov/search/collections.json?short_name=SPL3SMP&version=009&page_size=10",
+        "httpStatus": 200,
+        "retrievedAt": "2026-11-11T17:13:19+00:00",
+        "sha256": "c285ae60537951e38b62de18de080d7dba04d4e169f4a2c73bb7fafc31063a94",
+        "cmrHits": 1,
+        "rawResponseFile": "catalog-cache/443f761f66347bddf29c.json"
+      },
+      "collection": {
+        "id": "C2938664585-NSIDC_CPRD",
+        "title": "SMAP L3 Radiometer Global Daily 36 km EASE-Grid Soil Moisture V009",
+        "short_name": "SPL3SMP",
+        "version_id": "009",
+        "time_start": "2015-03-31T00:00:00.000Z",
+        "data_center": "NSIDC_CPRD"
+      }
+    },
+    {
+      "key": "active_fire",
+      "short_name": "VNP14IMG",
+      "version": "002",
+      "variables": [
+        "hotspots"
+      ],
+      "documentation": "https://www.earthdata.nasa.gov/data/tools/firms",
+      "status": "verified_catalog",
+      "samples": [
+        {
+          "area": "seco",
+          "query": {
+            "url": "https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=C2734202914-LPCLOUD&bounding_box=-63.5%2C-25.5%2C-62.5%2C-24.5&temporal=2015-01-01T00%3A00%3A00Z%2C2025-12-31T23%3A59%3A59Z&page_size=1&sort_key=start_date",
+            "httpStatus": 200,
+            "retrievedAt": "2026-11-11T17:13:31+00:00",
+            "sha256": "e8e0b36a68e043c28c47313b8d126a489a41fb6fb9677ce625d45925a6b5550b",
+            "cmrHits": 10942,
+            "rawResponseFile": "catalog-cache/a5321c11e5461741b1b9.json"
+          },
+          "returnedGranules": [
+            {
+              "id": "G3045712316-LPCLOUD",
+              "title": "VNP14IMG.A2015001.0506.002.2024151022552",
+              "time_start": "2015-01-01T05:06:00.000Z",
+              "time_end": "2015-01-01T05:12:00.000Z",
+              "data_center": "LPCLOUD",
+              "granule_size": "1.56688594818115"
+            }
+          ],
+          "sampleOnly": true
+        },
+        {
+          "area": "transicion",
+          "query": {
+            "url": "https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=C2734202914-LPCLOUD&bounding_box=-61.5%2C-26.5%2C-60.5%2C-25.5&temporal=2015-01-01T00%3A00%3A00Z%2C2025-12-31T23%3A59%3A59Z&page_size=1&sort_key=start_date",
+            "httpStatus": 200,
+            "retrievedAt": "2026-11-11T17:13:42+00:00",
+            "sha256": "f669a30158dacf9e7eb053d95f55d6f87bf6355c4e66f558e871e583cc221db9",
+            "cmrHits": 10988,
+            "rawResponseFile": "catalog-cache/5e68b4730d78f182a6d1.json"
+          },
+          "returnedGranules": [
+            {
+              "id": "G3045712316-LPCLOUD",
+              "title": "VNP14IMG.A2015001.0506.002.2024151022552",
+              "time_start": "2015-01-01T05:06:00.000Z",
+              "time_end": "2015-01-01T05:12:00.000Z",
+              "data_center": "LPCLOUD",
+              "granule_size": "1.56688594818115"
+            }
+          ],
+          "sampleOnly": true
+        },
+        {
+          "area": "humedo",
+          "query": {
+            "url": "https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=C2734202914-LPCLOUD&bounding_box=-59.5%2C-26.5%2C-58.5%2C-25.5&temporal=2015-01-01T00%3A00%3A00Z%2C2025-12-31T23%3A59%3A59Z&page_size=1&sort_key=start_date",
+            "httpStatus": 200,
+            "retrievedAt": "2026-11-11T17:13:47+00:00",
+            "sha256": "992379d2515aafabbf3d59a9513223f9f11f95ea22bd69cfb52efae265ec66a4",
+            "cmrHits": 11195,
+            "rawResponseFile": "catalog-cache/702e8ee3246ac7d812a8.json"
+          },
+          "returnedGranules": [
+            {
+              "id": "G3045712316-LPCLOUD",
+              "title": "VNP14IMG.A2015001.0506.002.2024151022552",
+              "time_start": "2015-01-01T05:06:00.000Z",
+              "time_end": "2015-01-01T05:12:00.000Z",
+              "data_center": "LPCLOUD",
+              "granule_size": "1.56688594818115"
+            }
+          ],
+          "sampleOnly": true
+        }
+      ],
+      "collectionRequest": {
+        "url": "https://cmr.earthdata.nasa.gov/search/collections.json?short_name=VNP14IMG&version=002&page_size=10",
+        "httpStatus": 200,
+        "retrievedAt": "2026-11-11T17:13:21+00:00",
+        "sha256": "4fe17e2ae788c41d79b0049af864a3f21aaac5780eacd2f97fcaae286195b6bc",
+        "cmrHits": 1,
+        "rawResponseFile": "catalog-cache/4b23e35322bfcfdaaa96.json"
+      },
+      "collection": {
+        "id": "C2734202914-LPCLOUD",
+        "title": "VIIRS/NPP Active Fires 6-Min L2 Swath 375m V002",
+        "short_name": "VNP14IMG",
+        "version_id": "002",
+        "time_start": "2012-01-17T00:00:00.000Z",
+        "data_center": "LPCLOUD"
+      }
+    },
+    {
+      "key": "burned_area",
+      "short_name": "MCD64A1",
+      "version": "061",
+      "variables": [
+        "burned_area"
+      ],
+      "documentation": "https://doi.org/10.5067/MODIS/MCD64A1.061",
+      "status": "verified_catalog",
+      "samples": [
+        {
+          "area": "seco",
+          "query": {
+            "url": "https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=C2565786756-LPCLOUD&bounding_box=-63.5%2C-25.5%2C-62.5%2C-24.5&temporal=2015-01-01T00%3A00%3A00Z%2C2025-12-31T23%3A59%3A59Z&page_size=1&sort_key=start_date",
+            "httpStatus": 200,
+            "retrievedAt": "2026-11-11T17:13:48+00:00",
+            "sha256": "968ec3182962d4bbe8a9f89c32ba18d28177f09c6d0a773ac45f61fe2ce1c387",
+            "cmrHits": 132,
+            "rawResponseFile": "catalog-cache/ce5d146c7bba91b4f116.json"
+          },
+          "returnedGranules": [
+            {
+              "id": "G2595774278-LPCLOUD",
+              "title": "MCD64A1.A2015001.h12v11.061.2021320120719",
+              "time_start": "2015-01-01T00:00:00.000Z",
+              "time_end": "2015-01-31T23:59:59.000Z",
+              "data_center": "LPCLOUD",
+              "granule_size": "4.44387"
+            }
+          ],
+          "sampleOnly": true
+        },
+        {
+          "area": "transicion",
+          "query": {
+            "url": "https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=C2565786756-LPCLOUD&bounding_box=-61.5%2C-26.5%2C-60.5%2C-25.5&temporal=2015-01-01T00%3A00%3A00Z%2C2025-12-31T23%3A59%3A59Z&page_size=1&sort_key=start_date",
+            "httpStatus": 200,
+            "retrievedAt": "2026-11-11T17:13:48+00:00",
+            "sha256": "3b094effc5d3cba39412ac6b2de4e6bedd4c0059e0be036ea257ec1adf79e3f7",
+            "cmrHits": 132,
+            "rawResponseFile": "catalog-cache/b217322f3fb703d72dee.json"
+          },
+          "returnedGranules": [
+            {
+              "id": "G2595774278-LPCLOUD",
+              "title": "MCD64A1.A2015001.h12v11.061.2021320120719",
+              "time_start": "2015-01-01T00:00:00.000Z",
+              "time_end": "2015-01-31T23:59:59.000Z",
+              "data_center": "LPCLOUD",
+              "granule_size": "4.44387"
+            }
+          ],
+          "sampleOnly": true
+        },
+        {
+          "area": "humedo",
+          "query": {
+            "url": "https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=C2565786756-LPCLOUD&bounding_box=-59.5%2C-26.5%2C-58.5%2C-25.5&temporal=2015-01-01T00%3A00%3A00Z%2C2025-12-31T23%3A59%3A59Z&page_size=1&sort_key=start_date",
+            "httpStatus": 200,
+            "retrievedAt": "2026-11-11T17:13:49+00:00",
+            "sha256": "0a29e94a6a7c656094778713ff484b01c1f9cc5ead865a529cb0a8cdd4bc23cf",
+            "cmrHits": 132,
+            "rawResponseFile": "catalog-cache/78ce49be99c1d47b57a3.json"
+          },
+          "returnedGranules": [
+            {
+              "id": "G2595774278-LPCLOUD",
+              "title": "MCD64A1.A2015001.h12v11.061.2021320120719",
+              "time_start": "2015-01-01T00:00:00.000Z",
+              "time_end": "2015-01-31T23:59:59.000Z",
+              "data_center": "LPCLOUD",
+              "granule_size": "4.44387"
+            }
+          ],
+          "sampleOnly": true
+        }
+      ],
+      "collectionRequest": {
+        "url": "https://cmr.earthdata.nasa.gov/search/collections.json?short_name=MCD64A1&version=061&page_size=10",
+        "httpStatus": 200,
+        "retrievedAt": "2026-11-11T17:13:47+00:00",
+        "sha256": "e019d71c0ec20ce811de0894200fe4f5d9fda2430db3715b1991353342af0300",
+        "cmrHits": 1,
+        "rawResponseFile": "catalog-cache/51c231ea23332941bcb4.json"
+      },
+      "collection": {
+        "id": "C2565786756-LPCLOUD",
+        "title": "MODIS/Terra+Aqua Direct Broadcast Burned Area Monthly L3 Global 500m SIN Grid V061",
+        "short_name": "MCD64A1",
+        "version_id": "061",
+        "time_start": "2000-11-01T00:00:00.000Z",
+        "data_center": "LPCLOUD"
+      }
+    }
+  ],
+  "errors": [],
+  "completedAt": "2026-11-11T17:13:49+00:00"
+}
