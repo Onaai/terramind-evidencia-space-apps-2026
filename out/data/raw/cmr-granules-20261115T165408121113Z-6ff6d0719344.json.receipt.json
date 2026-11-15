@@ -1,0 +1,12 @@
+{
+  "path": "raw/cmr-granules-20261115T165408121113Z-6ff6d0719344.json",
+  "url": "https://cmr.earthdata.nasa.gov/search/granules.json?short_name=MOD13Q1&temporal=2015-01-01T00%3A00%3A00Z%2C2025-12-31T23%3A59%3A59Z&point=-63%2C-25&page_size=2000&sort_key=start_date",
+  "finalUrl": "https://cmr.earthdata.nasa.gov/search/granules.json?short_name=MOD13Q1&temporal=2015-01-01T00%3A00%3A00Z%2C2025-12-31T23%3A59%3A59Z&point=-63%2C-25&page_size=2000&sort_key=start_date",
+  "retrievedAt": "2026-11-15T16:54:08Z",
+  "sha256": "6ff6d07193443dd0455d28d519aabefadb4bda3a967c1f75f9492769cba6d6b9",
+  "bytes": 1703229,
+  "status": 200,
+  "contentType": "application/json;charset=utf-8",
+  "etag": null,
+  "lastModified": null
+}

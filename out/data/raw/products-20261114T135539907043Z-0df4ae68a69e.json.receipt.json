@@ -1,0 +1,12 @@
+{
+  "path": "raw/products-20261114T135539907043Z-0df4ae68a69e.json",
+  "url": "https://modis.ornl.gov/rst/api/v1/products",
+  "finalUrl": "https://modis.ornl.gov/rst/api/v1/products",
+  "retrievedAt": "2026-11-14T13:55:39Z",
+  "sha256": "0df4ae68a69e83956143e84f1ec94d777a72fafc4ce86af0832747e012aa7724",
+  "bytes": 7732,
+  "status": 200,
+  "contentType": "application/json",
+  "etag": null,
+  "lastModified": null
+}

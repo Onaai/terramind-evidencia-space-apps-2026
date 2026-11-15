@@ -1,9 +1,9 @@
 {
   "name": "terramind-gran-chaco",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "TerraMind / SIGMA EARTH · Inteligencia forestal y climática",
-  "scripts": {"start":"node scripts/serve.mjs", "test":"node --test tests/*.test.mjs", "check":"node --check dist/app.js && node --check dist/map.js && node --check dist/science.js"},
+  "description": "TerraMind Evidencia · Piloto reproducible de vegetación del Gran Chaco",
+  "scripts": {"start":"node scripts/serve-evidence.mjs", "test":"node --test tests-evidence/*.test.mjs", "check":"node scripts/check-evidence.mjs", "data":"python scripts/fetch_evidence.py", "data:offline":"python scripts/fetch_evidence.py --offline"},
   "engines": {"node":">=20"}
 }

@@ -1,0 +1,12 @@
+{
+  "path": "raw/bands-20261114T135612475355Z-d41dc06bed93.json",
+  "url": "https://modis.ornl.gov/rst/api/v1/MOD13Q1/bands",
+  "finalUrl": "https://modis.ornl.gov/rst/api/v1/MOD13Q1/bands",
+  "retrievedAt": "2026-11-14T13:56:12Z",
+  "sha256": "d41dc06bed934ea5f032e0eb88b047c1c3c65df1c46db58aa6420be791475303",
+  "bytes": 2366,
+  "status": 200,
+  "contentType": "application/json",
+  "etag": null,
+  "lastModified": null
+}

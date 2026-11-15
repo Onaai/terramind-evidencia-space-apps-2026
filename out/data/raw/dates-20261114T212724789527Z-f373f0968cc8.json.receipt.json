@@ -1,0 +1,12 @@
+{
+  "path": "raw/dates-20261114T212724789527Z-f373f0968cc8.json",
+  "url": "https://modis.ornl.gov/rst/api/v1/MOD13Q1/dates?latitude=-25&longitude=-63",
+  "finalUrl": "https://modis.ornl.gov/rst/api/v1/MOD13Q1/dates?latitude=-25&longitude=-63",
+  "retrievedAt": "2026-11-14T21:27:24Z",
+  "sha256": "f373f0968cc81004e2879ac14a266516a51d333daa31e369d70ed1775523f5f9",
+  "bytes": 36238,
+  "status": 200,
+  "contentType": "application/json",
+  "etag": null,
+  "lastModified": null
+}

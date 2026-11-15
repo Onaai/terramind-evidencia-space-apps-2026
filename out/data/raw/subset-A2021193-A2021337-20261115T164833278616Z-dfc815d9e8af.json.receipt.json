@@ -1,0 +1,12 @@
+{
+  "path": "raw/subset-A2021193-A2021337-20261115T164833278616Z-dfc815d9e8af.json",
+  "url": "https://modis.ornl.gov/rst/api/v1/MOD13Q1/subset?latitude=-25&longitude=-63&startDate=A2021193&endDate=A2021337&kmAboveBelow=0&kmLeftRight=0",
+  "finalUrl": "https://modis.ornl.gov/rst/api/v1/MOD13Q1/subset?latitude=-25&longitude=-63&startDate=A2021193&endDate=A2021337&kmAboveBelow=0&kmLeftRight=0",
+  "retrievedAt": "2026-11-15T16:48:33Z",
+  "sha256": "dfc815d9e8afb5ebd1faa6b32ccd152d82dc015439c8cddd3f894adb1b67891d",
+  "bytes": 19800,
+  "status": 200,
+  "contentType": "application/json",
+  "etag": null,
+  "lastModified": null
+}

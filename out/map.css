@@ -1,0 +1,43 @@
+.evidence-map{--em-ink:#dfe9e0;--em-muted:#aab9af;color:var(--em-ink);font-family:inherit;isolation:isolate}
+.map-container.evidence-map{height:auto!important;min-height:0;flex:none;padding:16px;background:#173d35;display:block}
+.em-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:12px;flex-wrap:wrap}
+.em-map-title{font-size:14px;font-weight:650;letter-spacing:.01em}
+.em-actions{display:flex;align-items:center;gap:6px}
+.em-button{font-family:inherit;font-size:12px;font-weight:600;line-height:1.2;color:#e5ede6;background:#20362e;border:1px solid #486353;border-radius:7px;min-height:34px;padding:8px 11px;cursor:pointer}
+.em-button:hover{background:#2d493d;border-color:#8ba78f}
+.em-button:disabled{opacity:.55;cursor:wait}
+.evidence-map button:focus-visible,.evidence-map a:focus-visible,.evidence-map summary:focus-visible,.evidence-map input:focus-visible,.em-locator svg:focus-visible{outline:3px solid #efd088;outline-offset:3px}
+.em-stage{position:relative;isolation:isolate;height:280px;min-height:280px;overflow:hidden;border:1px solid #4c6855;border-radius:9px;background:#152d2a}
+.em-layer{position:absolute!important;inset:0;min-height:0!important;width:100%;height:100%}
+.em-layer[hidden]{display:none!important}
+.em-locator{z-index:1}
+.em-nasa{z-index:2;background:#152d2a!important}
+.em-google{z-index:3}
+.em-locator svg{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+.em-locator [role=button]{cursor:pointer}
+.em-point-card{position:absolute;z-index:1100;left:16px;top:16px;width:min(300px,calc(100% - 32px));box-sizing:border-box;background:#14241ef5;border:1px solid #9f9663;border-radius:10px;padding:16px;box-shadow:0 8px 30px #0005;color:#f5eed8}
+.em-point-card[hidden]{display:none}
+.em-point-card strong{font-size:15px}
+.em-point-card p{font-size:13px;line-height:1.55;margin:10px 0 14px}
+.em-status{font-size:12px;line-height:1.5;margin:10px 0 4px;color:#b9c9bc;min-height:18px}
+.em-status[data-state=error]{color:#e9c88c}
+.em-context{font-size:11px;line-height:1.5;color:#a6b5aa;margin:0 0 14px}
+.em-scope{font-size:11px;line-height:1.5;color:#d2e2ce;margin:0 0 14px}
+.em-options{border-top:1px solid #33483b;padding-top:12px;font-size:12px;color:#b7c5b9}
+.em-options summary{cursor:pointer;font-weight:600;width:fit-content;color:#d8e9d9;font-size:11px}
+.em-options a{color:#dccea6}
+.em-key-form{display:flex;align-items:end;gap:10px;margin:15px 0 7px}
+.em-key-form label{display:flex;flex-direction:column;gap:6px;flex:1}
+.em-key-input{width:100%;box-sizing:border-box;background:#14241e;color:#e6ede7;font:inherit;border:1px solid #536656;border-radius:6px;padding:9px 10px;min-height:36px}
+.em-key-help{font-size:11px;line-height:1.5;color:#a6b5aa;margin:7px 0}
+.evidence-map .em-pilot-icon{background:none;border:0;display:grid;place-items:center}
+.evidence-map .em-pilot-icon span{display:block;width:14px;height:14px;background:#f3d589;border:3px solid #fff6d9;border-radius:50%;box-shadow:0 0 0 5px #203b2f99,0 2px 10px #0009}
+.evidence-map .em-point-tooltip{border:1px solid #c8b97e;background:#172820ef;color:#f9ebbf;box-shadow:0 2px 8px #0004;font:600 11px/1.3 system-ui;padding:6px 8px;border-radius:5px}
+.evidence-map .em-point-tooltip:before{border-right-color:#c8b97e}
+.evidence-map .leaflet-popup-content-wrapper,.evidence-map .leaflet-popup-tip{background:#f7f3e9;color:#26372c}
+.evidence-map .leaflet-popup-content{margin:15px 18px;line-height:1.5;font-family:inherit}
+.evidence-map .em-popup p{margin:7px 0;font-size:12px}
+.evidence-map .leaflet-control-attribution{font-size:9px;line-height:1.5;background:#fcfcf1ed;color:#344b3d;padding:3px 6px}
+.evidence-map .leaflet-control-attribution a{color:#245438}
+.em-google-point{position:absolute;transform:translate(-50%,-50%);font:600 12px system-ui;color:#f3df9c;background:#1c342aed;border:1px solid #edd490;border-radius:8px;padding:8px 10px;white-space:nowrap;cursor:pointer;box-shadow:0 2px 10px #0005}
+@media(max-width:600px){.map-container.evidence-map{padding:14px}.em-stage{height:300px;min-height:300px}.em-toolbar{gap:10px}.em-map-title{font-size:13px}.em-actions{gap:5px}.em-button{font-size:11px;padding:8px 10px;min-height:36px}.em-key-form{align-items:stretch;flex-direction:column}.em-point-card{top:12px;left:12px}.evidence-map .leaflet-control-attribution{font-size:9px;max-width:75vw}}
