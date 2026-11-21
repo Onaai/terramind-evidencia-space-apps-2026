@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#173d35">
+  <title>TerraMind Evidencia · Un dato, una pregunta, una prueba</title>
+  <meta name="description" content="Explorá observaciones NASA de vegetación en un sitio piloto del Gran Chaco argentino. Revisá calidad, tendencias y sensibilidad sin confundir un píxel con una región.">
+  <link rel="icon" href="./mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./evidence.css"><link rel="stylesheet" href="./map.css">
+  <script type="module" src="./evidence-app.js"></script>
+  <script type="module" src="./english.js"></script>
+</head>
+<body>
+<a href="#main" class="skip">Saltar al análisis</a>
+<aside class="sidebar">
+  <a class="brand" href="./" aria-label="TerraMind, inicio"><img src="./mark.svg" alt="" width="38" height="38"><span>TerraMind<small>SIGMA EARTH / EVIDENCIA</small></span></a>
+  <div class="sidebar-caption">OBSERVAR. PREGUNTAR. COMPROBAR.</div>
+  <nav aria-label="Recorridos">
+    <button data-view="explore" class="nav-button active" aria-current="page"><span>◉</span> Explorar el cambio <b>01</b></button>
+    <button data-view="science" class="nav-button"><span>⌁</span> Revisión científica <b>02</b></button>
+    <button data-view="project" class="nav-button"><span>◇</span> Proyecto e inversión <b>03</b></button>
+  </nav>
+  <div class="case-label"><span class="tiny">CASO ACTIVO</span><strong>Gran Chaco argentino</strong><p>Vegetación + lluvia · Sitio piloto</p><div class="sidebar-coordinate">25° S <span>63° O</span></div></div>
+  <div class="sidebar-bottom"><span class="pulse-dot"></span> Observaciones NASA archivadas<p>Una herramienta de exploración.<br>Sin alertas operativas ni predicciones.</p><span class="credit">EMI + TOMI · SPACE APPS 2026</span></div>
+</aside>
+<div class="workspace">
+  <header class="topbar"><span>Inteligencia forestal y climática <span class="slash">/</span> <b id="breadcrumb">Exploración</b></span><div class="top-actions"><span class="pill real" id="data-badge">NASA · comprobando archivo</span><button class="button small" id="export-report" disabled>↓ Exportar evidencia</button></div></header>
+  <main id="main">
+    <div class="intro"><div><p class="eyebrow">TERRAMIND EVIDENCIA / PILOTO 01</p><h1>El cambio necesita evidencia.</h1><p class="lead">¿Qué cambió en la vegetación y la lluvia de este sitio?<br>Seguí la observación. Revisá la calidad. Poné a prueba la conclusión.</p></div><div class="intro-stamp"><span class="tiny">ESCALA DE LA EVIDENCIA</span><strong>1 sitio</strong><span id="scope-label">250 m nominales · MODIS Terra</span><small>No representa a todo el Gran Chaco.</small></div></div>
+    <div id="loading" role="status" class="notice">Cargando el archivo de observaciones y su trazabilidad…</div>
+    <div id="error" role="alert" class="notice danger" hidden></div>
+    <div id="app" hidden>
+      <section class="filters" aria-label="Configurar análisis">
+        <label>Indicador<select id="variable"><option value="ndvi">NDVI · verdor de la vegetación</option><option value="evi">EVI · índice mejorado</option><option value="precip">Lluvia · GPM IMERG</option></select></label>
+        <label>Desde<select id="start-year"></select></label><span class="filter-arrow" aria-hidden="true">→</span><label>Hasta<select id="end-year"></select></label>
+        <label class="quality-filter">Calidad de observación<select id="quality"><option value="strict">Estricta · análisis principal</option><option value="relaxed">Ampliada · prueba de sensibilidad</option></select></label>
+        <button class="text-button" id="reset">Restablecer</button>
+      </section>
+      <p id="filter-status" class="selection-status" aria-live="polite"></p>
+      <section id="view-explore" class="view">
+        <div id="findings" class="finding-grid"></div>
+        <div class="analysis-grid">
+          <section class="panel chart-panel"><div class="panel-heading"><div><p class="eyebrow">01 / LEER LA SEÑAL</p><h2 id="chart-heading">Vegetación a través del tiempo</h2></div><button class="text-button" id="export-chart" title="Descargar gráfico vectorial">↓ SVG</button></div>
+            <div class="chart-tabs" role="group" aria-label="Tipo de gráfico"><button data-chart="series" class="active" aria-pressed="true">Compuestos de 16 días</button><button data-chart="annual" aria-pressed="false">Resumen anual</button><button data-chart="anomaly" aria-pressed="false">Anomalías estacionales</button></div>
+            <div class="chart-key"><span><i class="key-line"></i><span id="legend-observed">Observación aceptada</span></span><span><i class="key-line muted"></i>Referencia 2015–2020</span><span><i class="key-cross">×</i>Excluida por calidad</span></div>
+            <div id="chart" class="chart"></div><div id="chart-tooltip" class="chart-readout" aria-live="polite"></div>
+            <label class="chart-cursor">Recorrer fechas con el teclado<input id="chart-cursor" type="range" min="0" max="0" value="0" aria-label="Recorrer observaciones"></label>
+            <p id="chart-note" class="footnote"></p>
+          </section>
+          <section class="panel location-panel"><div class="panel-heading"><div><p class="eyebrow">02 / UBICAR LA EVIDENCIA</p><h2>Un sitio, no toda una región</h2></div><span class="pill neutral">−25, −63</span></div><div id="map" class="map-container"></div><div class="map-caption"><strong>Chaco argentino · punto piloto</strong><p>El marcador localiza la celda estudiada. El fondo satelital aporta contexto; no muestra el cambio medido.</p></div></section>
+        </div>
+        <section class="panel robustness"><div class="panel-heading"><div><p class="eyebrow">03 / PONER A PRUEBA LA CONCLUSIÓN</p><h2>¿Cambia la respuesta si cambiamos la mirada?</h2><p>Comparaciones fijadas de antemano. Ninguna se elige por dar un resultado más llamativo.</p></div><button class="button" id="go-science">Ver revisión científica ↗</button></div><div id="robustness-cards" class="robustness-grid"></div><p class="footnote">Pendientes descriptivas; estas comparaciones no son pruebas independientes ni una corrección por múltiples contrastes.</p></section>
+        <div class="explanation-strip"><div><span class="number">?</span><strong>Un índice no es un diagnóstico.</strong><p>NDVI y EVI describen propiedades de la vegetación. Por sí solos no demuestran deforestación, sequía ni la causa de un cambio.</p></div><a href="https://modis.ornl.gov/data/modis_webservice.html" target="_blank" rel="noopener">Abrir la fuente NASA ↗</a></div>
+      </section>
+      <section id="view-science" class="view" hidden>
+        <div class="section-intro"><p class="eyebrow">RECORRIDO PROFESIONAL</p><h2>Una conclusión que se pueda revisar.</h2><p>La misma evidencia, con decisiones de procesamiento, datos excluidos y límites visibles.</p></div>
+        <div class="science-grid"><section class="panel"><div class="panel-heading"><h3>Diagnóstico de la tendencia</h3><span class="pill neutral">Exploratorio</span></div><div id="trend-detail"></div></section><section class="panel"><div class="panel-heading"><h3>Procedencia del dato</h3><a class="text-button" href="./data/pilot.json" id="dataset-link" target="_blank">JSON ↗</a></div><dl id="provenance" class="definition-list"></dl></section></div>
+        <section class="panel"><div class="panel-heading"><div><p class="eyebrow">CALIDAD A LO LARGO DEL TIEMPO</p><h3>La ausencia también es información</h3></div><span class="tiny"><span id="calendar-unit">CADA CELDA = UN COMPUESTO</span></span></div><div id="quality-calendar"></div><p class="footnote" id="quality-calendar-note">Verde: aceptado. Ámbar: descartado. Gris: ausente.</p></section>
+        <section class="panel"><div class="panel-heading"><h3>Sensibilidad de la pendiente</h3></div><div id="sensitivity-table" class="table-wrap"></div></section>
+        <section class="panel"><div class="panel-heading"><h3>Ficha metodológica</h3><a class="text-button" href="./methodology.md" id="methodology-link" target="_blank">Metodología completa ↗</a></div><div class="method-grid" id="method-content"><div><span>01</span><h4>Producto y alcance</h4><p>MOD13Q1, índices NDVI y EVI en compuestos de 16 días. Una celda nativa en el punto fijado antes de descargar la serie. No es un promedio regional.</p></div><div><span>02</span><h4>Calidad antes del resultado</h4><p>Se conservan valores originales y banderas. El filtro estricto excluye observaciones problemáticas; el ampliado sirve para evaluar sensibilidad.</p></div><div><span>03</span><h4>Resumen y estacionalidad</h4><p>Medias anuales ponderadas por duración del compuesto. Se exige cobertura y presencia en las cuatro estaciones. Anomalías frente al mismo intervalo del año en 2015–2020.</p></div><div><span>04</span><h4>Inferencia con límites</h4><p>Pendiente de Sen y Mann–Kendall exploratorio cuando hay años suficientes. La dependencia temporal puede impedir informar el p-valor clásico. No se interpreta asociación como causa.</p></div></div></section>
+        <section class="panel"><div class="panel-heading"><h3>Observaciones y exclusiones</h3><button class="button small" id="export-csv">↓ Descargar serie CSV</button></div><details id="observations-details"><summary>Revisar la tabla de datos nativos</summary><div id="observations-table" class="table-wrap observation-table"></div></details></section>
+        <section class="source-links"><a href="https://modis.ornl.gov/data/modis_webservice.html" target="_blank" rel="noopener">NASA / ORNL DAAC ↗</a><a href="https://modis-land.gsfc.nasa.gov/pdf/MOD13_User_Guide_V61.pdf" target="_blank" rel="noopener">Guía del producto MOD13 ↗</a><a href="https://www.earthdata.nasa.gov/" target="_blank" rel="noopener">NASA Earthdata ↗</a><a href="https://www.argentina.gob.ar/ciencia/conae" target="_blank" rel="noopener">CONAE · contexto institucional ↗</a><span>CONAE no es fuente de las mediciones de este piloto.</span></section>
+      </section>
+      <section id="view-project" class="view" hidden>
+        <div class="project-hero"><p class="eyebrow">VISIÓN DE PRODUCTO / FUERA DEL RECORRIDO DEL JURADO</p><h2>Hacer comprensible<br>la evidencia ambiental.</h2><p>TerraMind conecta observaciones públicas con una pregunta concreta. El valor propuesto está en la trazabilidad y en una lectura responsable del cambio.</p><span class="pill">Hipótesis de producto · sin validación comercial</span></div>
+        <div class="project-grid"><article class="panel"><span class="eyebrow">PARA QUIÉN</span><h3>Equipos que necesitan explicar una afirmación ambiental.</h3><p>Docentes, periodistas de datos y equipos técnicos locales son usuarios potenciales. Falta entrevistar usuarios y comprobar utilidad en tareas reales.</p></article><article class="panel"><span class="eyebrow">QUÉ FUNCIONA HOY</span><h3>Un expediente de vegetación y lluvia.</h3><p>Observaciones NASA, filtros de calidad, gráficos, sensibilidad al período y exportación. Un sitio en dos grillas diferentes: no es todavía un servicio regional.</p></article><article class="panel"><span class="eyebrow">SIGUIENTE VALIDACIÓN</span><h3>De una celda a un área justificada.</h3><p>Validar extracción de polígonos y coberturas con un especialista; contrastar con herramientas NASA; hacer pruebas con usuarios antes de ampliar fuentes.</p></article></div>
+        <section class="panel"><div class="panel-heading"><h3>Expansión, con condiciones de evidencia</h3></div><div class="roadmap"><div><span>01 · ACTUAL</span><h4>Vegetación y lluvia</h4><p>MODIS + GPM IMERG reales<br>Un sitio, dos escalas</p></div><div><span>02 · PENDIENTE</span><h4>Fuego y contexto</h4><p>MODIS / VIIRS<br>Extracción y validación por realizar</p></div><div><span>03 · PENDIENTE</span><h4>Suelo</h4><p>SMAP desde 2015<br>Sin serie cargada en este piloto</p></div><div><span>04 · HIPÓTESIS</span><h4>Aplicaciones</h4><p>Agricultura, agua y biodiversidad<br>Requieren casos y validación propios</p></div></div></section>
+        <div class="notice">No hay clientes, ingresos, eficacia predictiva ni métricas de impacto verificadas que podamos declarar. Este recorrido presenta una dirección de desarrollo y sus pendientes.</div>
+      </section>
+    </div>
+    <footer><span><b>TerraMind</b> · evidencia antes que conclusiones</span><span>Emi + Tomi · Código y textos asistidos por IA · Sin aval institucional de NASA</span></footer>
+  </main>
+</div>
+</body></html>

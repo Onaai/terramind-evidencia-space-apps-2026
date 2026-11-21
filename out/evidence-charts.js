@@ -7,19 +7,22 @@ export const formatDate = value => df.format(new Date(value+'T00:00:00Z'));
 function median(a){const s=[...a].sort((a,b)=>a-b),m=Math.floor(s.length/2);return s.length?s.length%2?s[m]:(s[m-1]+s[m])/2:null;}
 export function chartRows(result, mode){return mode==='annual'?result.annual.map(r=>({...r,date:`${r.year}-01-01`,displayValue:r.value,referenceValue:null})):result.series.map(r=>({...r,displayValue:mode==='anomaly'?r.anomaly:r.accepted?r.value:null}));}
 export function lineSegments(rows, value, x, y){const chunks=[];let part=[];for(let i=0;i<rows.length;i++){const v=value(rows[i]);if(Number.isFinite(v)){part.push([x(i),y(v)]);}else if(part.length){chunks.push(part);part=[];}}if(part.length)chunks.push(part);return chunks;}
-export function renderChart(container,result,mode,{onFocus=()=>{}}={}){
-  const rows=chartRows(result,mode),W=780,H=306,L=48,R=18,T=23,B=39,PW=W-L-R,PH=H-T-B;
-  const values=rows.map(r=>r.displayValue).filter(Number.isFinite),rain=result.variable==='precip',label=rain?'Precipitación':result.variable.toUpperCase();
+export function renderChart(container,result,mode,{onFocus=()=>{},description=null}={}){
+  const rows=chartRows(result,mode),W=Math.max(360,Math.min(1000,container.clientWidth||780)),H=306,L=70,R=18,T=23,B=39,PW=W-L-R,PH=H-T-B;
+  const values=rows.map(r=>r.displayValue).filter(Number.isFinite),rain=result.variable==='precip',temperature=result.variable==='temp',label=rain?'Precipitación':temperature?'Temperatura':result.variable.toUpperCase();
   let min=0,max=1;
   if(mode==='anomaly'){const lim=Math.max(rain?10:.1,...values.map(Math.abs));max=rain?Math.ceil(lim/50)*50:Math.ceil(lim*10)/10;min=-max;}
   else if(rain)max=Math.max(100,Math.ceil(Math.max(0,...values,...rows.map(r=>r.referenceValue).filter(Number.isFinite))/100)*100);
   else if(values.some(v=>v<0))min=-.2;
+  if(temperature){const all=[...values,...(mode==='series'?rows.map(r=>r.referenceValue).filter(Number.isFinite):[])];if(mode==='anomaly'){max=Math.max(1,...values.map(Math.abs));min=-max;}else{min=all.length?Math.floor(Math.min(...all))-1:0;max=all.length?Math.ceil(Math.max(...all))+1:1;}}
   const x=i=>L+(rows.length===1?PW/2:i*PW/(rows.length-1)),y=v=>T+PH*(1-(v-min)/(max-min));
   const title=mode==='annual'?(rain?'Precipitación acumulada anual':'Resumen anual ponderado'):mode==='anomaly'?'Anomalía frente al mismo intervalo del año en 2015–2020':rain?'Precipitación acumulada mensual':'Observaciones nativas de 16 días';
   let svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="chart-title chart-description"><title id="chart-title">${escapeHtml(result.variable.toUpperCase())}: ${title}</title><desc id="chart-description">Datos reales MOD13Q1 de un píxel, −25°, −63°. ${result.startYear} a ${result.endYear}. Los huecos indican observaciones excluidas o referencia insuficiente. La tabla de revisión científica contiene los valores.</desc><defs><linearGradient id="area-fill" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#5b9a6d" stop-opacity=".17"/><stop offset="1" stop-color="#5b9a6d" stop-opacity="0"/></linearGradient></defs>`;
   for(let k=0;k<=5;k++){const v=min+(max-min)*k/5,yy=y(v);svg+=`<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="${Math.abs(v)<1e-9?'#b8c8b2':'#e9eee5'}" stroke-width="1"/><text x="${L-9}" y="${yy+4}" text-anchor="end" font-size="11" fill="#889580">${formatNumber(v,mode==='anomaly'?2:1)}</text>`;}
   svg=svg.replace('Datos reales MOD13Q1 de un píxel','Datos reales '+(rain?'GPM IMERG vía NASA POWER de una celda':'MOD13Q1 de un píxel'));
-  svg+=`<text x="${L}" y="12" font-size="12" fill="#7c8b73">${mode==='anomaly'?'Δ ':''}${label} · ${rain?'mm':'adimensional'}</text>`;
+  if(description)svg=svg.replace(/<desc id="chart-description">[\s\S]*?<\/desc>/,`<desc id="chart-description">${escapeHtml(description)}</desc>`);
+  if(temperature)svg=svg.replace('Resumen anual ponderado','Temperatura media anual ponderada').replace('Observaciones nativas de 16 días','Temperatura media mensual');
+  svg+=`<text x="${L}" y="12" font-size="12" fill="#7c8b73">${mode==='anomaly'?'Δ ':''}${label} · ${rain?'mm':temperature?'°C':'adimensional'}</text>`;
   if(mode==='series'){
     for(const chunk of lineSegments(rows,r=>r.referenceValue,x,y)){svg+=`<path d="${chunk.map((p,j)=>`${j?'L':'M'}${p.join(',')}`).join(' ')}" fill="none" stroke="#aabca0" stroke-dasharray="4 4" stroke-width="1.4"/>`;}
   }
@@ -39,7 +42,7 @@ export function renderChart(container,result,mode,{onFocus=()=>{}}={}){
   }
   rows.forEach((r,i)=>{if(!r.accepted){const yy=mode==='series'&&Number.isFinite(r.value)&&r.value>=min&&r.value<=max?y(r.value):T+PH-5;svg+=`<path d="M${x(i)-2.1},${yy-2.1}l4.2,4.2m0,-4.2l-4.2,4.2" stroke="#bf965f" stroke-width="1" opacity=".7"/>`;}});
   const labels=mode==='annual'?rows.map((r,i)=>({year:r.year,index:i})):rows.filter(r=>r.slot===0).map(r=>({year:r.year,index:rows.indexOf(r)}));
-  const step=Math.max(1,Math.ceil(labels.length/6));labels.forEach((r,i)=>{if(i%step===0||i===labels.length-1)svg+=`<text x="${x(r.index)}" y="${H-13}" text-anchor="middle" font-size="11" fill="#7e8e76">${r.year}</text>`;});
+  const step=Math.max(1,Math.ceil(labels.length/Math.max(2,Math.floor(PW/75))));labels.forEach((r,i)=>{if(i%step===0||i===labels.length-1)svg+=`<text x="${x(r.index)}" y="${H-13}" text-anchor="middle" font-size="11" fill="#7e8e76">${r.year}</text>`;});
   svg+=`<line id="chart-guide" x1="${L}" x2="${L}" y1="${T}" y2="${T+PH}" stroke="#8bab79" stroke-dasharray="3 3" opacity="0"/>`;
   rows.forEach((r,i)=>{const step=PW/Math.max(1,rows.length-1);svg+=`<rect data-index="${i}" x="${Math.max(L,x(i)-step/2)}" y="${T}" width="${Math.min(step,W-R-Math.max(L,x(i)-step/2))}" height="${PH}" fill="transparent"/>`;});
   if(!values.length)svg+=`<rect x="${L+30}" y="${T+PH/2-27}" width="${PW-60}" height="54" rx="6" fill="#f5f7f0"/><text x="${L+PW/2}" y="${T+PH/2+4}" text-anchor="middle" font-size="13" fill="#6c8061">No hay valores aptos para este gráfico.</text>`;

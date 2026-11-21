@@ -1,1 +1,1 @@
-{"$schema":"https://openapi.vercel.sh/vercel.json","framework":null,"buildCommand":"","installCommand":"","outputDirectory":"out"}
+{"$schema":"https://openapi.vercel.sh/vercel.json","framework":null,"buildCommand":"","installCommand":"","outputDirectory":"out","functions":{"api/earth.js":{"maxDuration":60}}}
