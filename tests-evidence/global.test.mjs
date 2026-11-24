@@ -1,8 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {coordinates,parseClimate,climateAnalysis,parseVegetation} from '../out/global-data.js';
+import {coordinates,validateLocation,parseClimate,climateAnalysis,parseVegetation} from '../out/global-data.js';
 import {sourceURL} from '../api/earth.js';
 const site={lat:40.42,lon:-3.7};
+test('POWER rounding to three decimals does not reject freely chosen map points',()=>{assert.doesNotThrow(()=>validateLocation({geometry:{coordinates:[-64.197,-31.385]}},{lat:-31.3847,lon:-64.1965},'climate'));assert.throws(()=>validateLocation({geometry:{coordinates:[-64.198,-31.385]}},{lat:-31.3847,lon:-64.1965},'climate'));assert.doesNotThrow(()=>validateLocation({geometry:{coordinates:[180,0]}},{lat:0,lon:-180},'climate'));});
 function fixture(){const p={T2M:{},PRECTOTCORR:{}};for(let y=2015;y<=2025;y++)for(let m=1;m<=12;m++){const key=`${y}${String(m).padStart(2,'0')}`;p.T2M[key]=-3;p.PRECTOTCORR[key]=1;}return {geometry:{coordinates:[site.lon,site.lat]},header:{fill_value:-999,sources:['MERRA2']},parameters:{T2M:{units:'C'},PRECTOTCORR:{units:'mm/day'}},properties:{parameter:p}};}
 test('global coordinates accept both hemispheres and poles; reject missing and out-of-range',()=>{assert.deepEqual(coordinates(-90,180),{lat:-90,lon:180});for(const p of [['',0],[0,''],[91,0],[0,-181],['oops',2]])assert.throws(()=>coordinates(...p));});
 test('fixed upstreams cannot become arbitrary URL proxies',()=>{const url=new URL(sourceURL({lat:'40.42',lon:'-3.7',kind:'climate',url:'https://evil.example'}));assert.equal(url.hostname,'power.larc.nasa.gov');assert.equal(url.searchParams.get('parameters'),'PRECTOTCORR,T2M');assert.throws(()=>sourceURL({lat:'1',lon:'1',kind:'evil'}));assert.throws(()=>sourceURL({lat:'1',lon:'1',kind:'vegetation',start:'A2015001',end:'A2025361'}));});

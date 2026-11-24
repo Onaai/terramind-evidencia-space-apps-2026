@@ -1,14 +1,17 @@
+import {setupMapControls,clearArea,selectedArea} from './global-map-controls.js';
 import {PRESETS,coordinates,parseClimate,parseVegetation,climateAnalysis,vegetationAnalysis} from './global-data.js';
 import {renderChart,escapeHtml as esc,formatNumber as fmt,formatP} from './evidence-charts.js';
 const $=id=>document.getElementById(id);
 let site=null,climate=null,vegetation=null,receipts=[],result=null,chart=null,mode='series',controller=null,generation=0,map,marker;
+let selectedName='Gran Chaco · Argentina';
 const cache=new Map();
 const label={temp:'Temperatura',precip:'Precipitación',ndvi:'NDVI',evi:'EVI'};
 const climateVariable=()=>['temp','precip'].includes($('indicator').value);
 function status(message,error=false,target='status'){$(target).textContent=message;$(target).classList.toggle('error',error);}
 function busy(value){$('load').disabled=value;$('cancel').hidden=!value;}
 function invalidate(){generation++;controller?.abort();controller=null;busy(false);site=null;result=null;climate=null;vegetation=null;receipts=[];$('results').hidden=true;$('analysis').hidden=true;}
-function choose(lat,lon,name='Coordenadas personalizadas'){
+function choose(lat,lon,name='Coordenadas personalizadas',keepArea=false){
+  if(!keepArea)clearArea();selectedName=name;
   invalidate();const point=coordinates(lat,lon);$('latitude').value=point.lat;$('longitude').value=point.lon;
   $('selection').textContent=`${name} · ${point.lat}, ${point.lon}`;
   if(marker)marker.setLatLng([point.lat,point.lon]);
@@ -17,7 +20,7 @@ function choose(lat,lon,name='Coordenadas personalizadas'){
 PRESETS.forEach((p,i)=>{const o=document.createElement('option');o.value=i;o.textContent=p.name;$('preset').append(o);});$('preset').value='0';
 for(let y=2015;y<=2025;y++)for(const id of ['start','end']){const o=document.createElement('option');o.value=y;o.textContent=y;$(id).append(o);}$('end').value='2025';
 $('preset').addEventListener('change',()=>{const p=PRESETS[$('preset').value];if(p){choose(p.lat,p.lon,p.name);map?.setView([p.lat,p.lon],4);}});
-for(const id of ['latitude','longitude'])$(id).addEventListener('input',()=>{invalidate();$('preset').value='';$('selection').textContent='Coordenadas modificadas · consulta pendiente';status('Consultá de nuevo para analizar las coordenadas ingresadas.');});
+for(const id of ['latitude','longitude'])$(id).addEventListener('input',()=>{invalidate();clearArea();selectedName='Punto personalizado';$('preset').value='';$('selection').textContent='Coordenadas modificadas · consulta pendiente';status('Consultá de nuevo para analizar las coordenadas ingresadas.');});
 async function get(kind,params,signal){
   const response=await fetch('/api/earth?'+new URLSearchParams({kind,lat:site.lat,lon:site.lon,...params}),{signal});
   const body=await response.json();if(!response.ok)throw new Error(body.error||'La fuente no respondió.');
@@ -73,7 +76,7 @@ async function loadSource(){
 }
 $('location-form').addEventListener('submit',event=>{
   event.preventDefault();let point;try{point=coordinates($('latitude').value,$('longitude').value);}catch(e){status(e.message,true);return;}
-  invalidate();site={...point,name:PRESETS[$('preset').value]?.name||'Punto personalizado'};
+  invalidate();site={...point,name:PRESETS[$('preset').value]?.name||selectedName,visualArea:selectedArea};
   $('place-title').textContent=site.name;$('place-detail').textContent=`${site.lat}°, ${site.lon}° · Consulta puntual · 2015–2025`;
   $('results').hidden=false;marker?.setLatLng([site.lat,site.lon]);
   history.replaceState(null,'',`?lat=${site.lat}&lon=${site.lon}#explorer`);
@@ -112,12 +115,14 @@ $('csv').addEventListener('click',()=>{if(!result)return;const rows=['latitude,l
 async function loadMap(){
   try{
     await Promise.all([new Promise((resolve,reject)=>{const css=document.createElement('link');css.rel='stylesheet';css.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';css.integrity='sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';css.crossOrigin='anonymous';css.onload=resolve;css.onerror=reject;document.head.append(css);}),new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';script.integrity='sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';script.crossOrigin='anonymous';script.onload=resolve;script.onerror=reject;document.head.append(script);})]);
-    const L=window.L;map=L.map('world-map',{scrollWheelZoom:false,worldCopyJump:true,minZoom:1,maxZoom:8}).setView([12,5],2);
-    const tiles=L.tileLayer('https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_NextGeneration/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg',{maxZoom:8,attribution:'Imagery © NASA GIBS / Blue Marble'}).addTo(map);
+    const L=window.L;map=L.map('world-map',{scrollWheelZoom:false,worldCopyJump:true,minZoom:1,maxZoom:19}).setView([12,5],2);
+    const tiles=L.tileLayer('https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_NextGeneration/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg',{maxZoom:19,maxNativeZoom:8,attribution:'Imagery © NASA GIBS / Blue Marble'}).addTo(map);
+    const streets=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'});
+    $('map-layer').onchange=()=>{if($('map-layer').value==='streets'){map.removeLayer(tiles);streets.addTo(map);document.querySelector('.map-note').textContent='OpenStreetMap: calles y lugares para orientarte. El detalle del mapa no aumenta la resolución de los datos NASA.';}else{map.removeLayer(streets);tiles.addTo(map);document.querySelector('.map-note').textContent='NASA Blue Marble: imagen histórica de contexto. Ampliar la imagen no agrega detalle ni muestra cambios actuales.';}};
     let errors=0;tiles.on('tileerror',()=>{if(++errors===3)document.querySelector('.map-note').textContent='El fondo NASA no está disponible. Podés seguir consultando por coordenadas; no se muestran imágenes sustitutas.';});
     marker=L.marker([Number($('latitude').value),Number($('longitude').value)],{icon:L.divIcon({className:'global-marker',iconSize:[16,16],iconAnchor:[8,8]}),keyboard:false}).addTo(map);
     if($('preset').value!=='0')map.setView([Number($('latitude').value),Number($('longitude').value)],4);
-    map.on('click',event=>{const wrapped=event.latlng.wrap();$('preset').value='';choose(wrapped.lat,wrapped.lng);});
+    setupMapControls(L,map,choose);
   }catch{$('world-map').innerHTML='<p class="map-failure">No se pudo cargar el mapa. Usá las coordenadas o los lugares de ejemplo para consultar NASA.</p>';}
 }
 const initial=new URLSearchParams(location.search);

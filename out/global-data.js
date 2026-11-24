@@ -15,7 +15,10 @@ export function coordinates(lat,lon) {
 export function validateLocation(payload,site,kind) {
   const lat=kind==='climate'?payload.geometry?.coordinates?.[1]:Number(payload.latitude);
   const lon=kind==='climate'?payload.geometry?.coordinates?.[0]:Number(payload.longitude);
-  if(!Number.isFinite(lat)||!Number.isFinite(lon)||Math.abs(lat-site.lat)>0.00011||Math.abs(lon-site.lon)>0.00011) throw new Error('La respuesta no coincide con la ubicación pedida.');
+  // POWER echoes query coordinates rounded to three decimals; this is not a grid-cell centroid.
+  const tolerance=kind==='climate'?0.000501:0.00011;
+  const longitudeDifference=Math.abs(((lon-site.lon+180)%360+360)%360-180);
+  if(!Number.isFinite(lat)||!Number.isFinite(lon)||Math.abs(lat-site.lat)>tolerance||longitudeDifference>tolerance) throw new Error('La respuesta no coincide con la ubicación pedida.');
 }
 export function parseClimate(payload,site) {
   validateLocation(payload,site,'climate');

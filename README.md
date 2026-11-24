@@ -23,7 +23,7 @@ npm run check
 
 ## Qué cambia
 
-Mapa mundial NASA GIBS, coordenadas libres y ejemplos en América, Europa, África, Asia y Oceanía. Clima mensual NASA POWER/MERRA-2 (temperatura y precipitación corregida). Vegetación MOD13Q1 bajo disponibilidad de ORNL DAAC, con descarga de NDVI/EVI y QA. Períodos 2015–2025, anomalías estacionales, Sen/Mann–Kendall exploratorio y exportaciones JSON/CSV. Al cambiar de lugar se cancelan consultas y se retiran los resultados anteriores.
+Buscador mundial por nombre (Open-Meteo/GeoNames), fondo NASA GIBS o calles OpenStreetMap con zoom hasta 19, mapa ampliado, delimitación de zonas visuales por dos esquinas y coordenadas libres y ejemplos en América, Europa, África, Asia y Oceanía. Clima mensual NASA POWER/MERRA-2 (temperatura y precipitación corregida). Vegetación MOD13Q1 bajo disponibilidad de ORNL DAAC, con descarga de NDVI/EVI y QA. Períodos 2015–2025, anomalías estacionales, Sen/Mann–Kendall exploratorio y exportaciones JSON/CSV. Al cambiar de lugar se cancelan consultas y se retiran los resultados anteriores.
 
 El expediente JSON incluye respuestas NASA originales, URL, fecha y SHA-256. Los datos de clima son reanálisis MERRA-2, **no IMERG**. El piloto archivado conserva sus observaciones MODIS y su serie IMERG anterior.
 
@@ -38,3 +38,5 @@ Metodología: `out/global-methodology.html`. El análisis del piloto anterior y 
 Conectar este repositorio. Framework Other; sin instalación ni build; salida `out`. `vercel.json` configura `/api/earth` como función Node y límite de 60 segundos. La función sólo consulta dos dominios NASA fijos y valida coordenadas, tipo y tamaño del lote. No recibe claves ni URLs arbitrarias. Respuestas exitosas con caché CDN de 24 horas; errores sin caché.
 
 No publicar esta versión sólo en hosting estático: requiere la función incluida en `api/earth.js`.
+
+La delimitación de una zona consulta una celda de su centro o el punto elegido dentro; no es una agregación espacial. El expediente conserva `site.visualArea`. La búsqueda gratuita de Open-Meteo se usa como prototipo no comercial; para un servicio comercial revisar su plan/licencia.
