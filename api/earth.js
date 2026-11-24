@@ -11,7 +11,9 @@ export function sourceURL(query) {
     const date = s => Date.UTC(Number(s.slice(1,5)),0,Number(s.slice(5)));
     const span = (date(query.end)-date(query.start))/86400000;
     if(span<0 || span>144) throw new Error('Solicitá hasta diez compuestos por lote.');
-    return 'https://modis.ornl.gov/rst/api/v1/MOD13Q1/subset?' + new URLSearchParams({latitude:String(lat),longitude:String(lon),startDate:query.start,endDate:query.end,kmAboveBelow:'0',kmLeftRight:'0'});
+    const above=Number(query.kmAboveBelow??0),across=Number(query.kmLeftRight??0);
+    if(![above,across].every(n=>Number.isInteger(n)&&n>=0&&n<=5))throw new Error('Recorte MODIS fuera del límite de 5 km por lado.');
+    return 'https://modis.ornl.gov/rst/api/v1/MOD13Q1/subset?' + new URLSearchParams({latitude:String(lat),longitude:String(lon),startDate:query.start,endDate:query.end,kmAboveBelow:String(above),kmLeftRight:String(across)});
   }
   throw new Error('Fuente no admitida.');
 }

@@ -1,42 +1,28 @@
-# TerraMind Global — v3
+# TerraMind Global · análisis por zonas
 
-Explorador mundial por coordenada. Implementación global posterior al prototipo del evento; no se presenta como trabajo realizado durante la competencia.
+Versión del 24 de noviembre de 2026. Web: https://terramind-global.vercel.app
 
-- App: https://terramind-evidencia.vercel.app/
-- Expediente archivado del Chaco: https://terramind-evidencia.vercel.app/pilot.html
-- Repositorio: https://github.com/Onaai/terramind-evidencia-space-apps-2026
+Delimitá dos esquinas y elegí **Analizar zona seleccionada**. Series, anomalías, resúmenes anuales y conclusiones usan la media ponderada por superficie de las celdas intersectadas. CSV y JSON incluyen límites y cobertura; JSON conserva las respuestas NASA y sus hashes.
 
-## Ejecutar
+- Clima: todas las celdas MERRA‑2 de la zona, hasta 400; 100% de superficie válida por mes. Precipitación en mm medios del área.
+- MODIS: todos los píxeles del recorte, QA por fecha, ≥95% de superficie válida. Límite aproximado 8 × 8 km (depende de proyección), sin cruce del antimeridiano, latitudes ±80°. El resto de la zona nunca se reemplaza por el punto central. Fuera del límite se muestra un error y se solicita reducir la selección.
+- Mann–Kendall se aplica a la serie zonal; si cambia la huella válida MODIS, se suspende el p-valor. La pendiente queda descriptiva.
+- Un cambio de zona cancela consultas anteriores y oculta sus resultados. Quitar zona vuelve a la consulta puntual.
 
-Requiere Node.js 20 o superior y conexión a Internet. No requiere paquetes ni claves para el explorador global.
+Para ejecutar: Node 20 o posterior, `npm start`, abrir http://localhost:4180. Sin instalación de dependencias. Verificación: `npm test` y `npm run check`.
 
-```sh
-npm start
-```
+La ficha `/global-methodology.html` describe las fórmulas, límites de resolución y cobertura. El piloto archivado Chaco se conserva en `/pilot.html`.
 
-Abrir http://127.0.0.1:4180. Este servidor también atiende `/api/earth`; abrir HTML como archivo o servir sólo `out/` no permite las consultas globales.
+Implementación posterior al prototipo del evento; no se presenta como trabajo realizado durante la competencia.
 
-```sh
-npm test
-npm run check
-```
+## Fuentes y publicación
 
-## Qué cambia
+Clima: NASA POWER/MERRA-2 (reanálisis, no GPM IMERG). Vegetación: NASA MOD13Q1 / ORNL DAAC; colección no confirmada individualmente contra CMR. El piloto archivado conserva su serie IMERG. No hay observaciones simuladas, predicciones de incendios ni causalidad atribuida.
 
-Buscador mundial por nombre (Open-Meteo/GeoNames), fondo NASA GIBS o calles OpenStreetMap con zoom hasta 19, mapa ampliado, delimitación de zonas visuales por dos esquinas y coordenadas libres y ejemplos en América, Europa, África, Asia y Oceanía. Clima mensual NASA POWER/MERRA-2 (temperatura y precipitación corregida). Vegetación MOD13Q1 bajo disponibilidad de ORNL DAAC, con descarga de NDVI/EVI y QA. Períodos 2015–2025, anomalías estacionales, Sen/Mann–Kendall exploratorio y exportaciones JSON/CSV. Al cambiar de lugar se cancelan consultas y se retiran los resultados anteriores.
+Buscador Open-Meteo/GeoNames para este prototipo no comercial; fondo NASA GIBS u OpenStreetMap. Revisar licencias y planes antes de un uso comercial. El mapa no define la resolución del análisis.
 
-El expediente JSON incluye respuestas NASA originales, URL, fecha y SHA-256. Los datos de clima son reanálisis MERRA-2, **no IMERG**. El piloto archivado conserva sus observaciones MODIS y su serie IMERG anterior.
+Vercel: conectar el repositorio, framework Other, sin instalación ni build, salida `out`. `vercel.json` configura la función Node `/api/earth` con límite de 60 segundos por petición. El navegador descarga lotes con un máximo de dos peticiones simultáneas. No publicar sólo `out` en un hosting estático: se necesitan `api/earth.js` y `api/places.js`.
 
-## Límites
+GitHub: https://github.com/Onaai/terramind-evidencia-space-apps-2026
 
-Acceso por coordenadas a escala mundial no equivale a promedios globales o regionales. Son celdas en grillas distintas. MODIS puede no cubrir agua, hielo o puntos con mala calidad; fallos de la fuente se muestran sin inventar series. Colección de MODIS no confirmada individualmente contra CMR en consultas globales. Sin SMAP, incendios, predicciones ni análisis de polígonos en este explorador.
-
-Metodología: `out/global-methodology.html`. El análisis del piloto anterior y su procedencia permanecen documentados en `README-EVIDENCIA.md` y `DATA_EVIDENCE.md`.
-
-## Publicar en Vercel
-
-Conectar este repositorio. Framework Other; sin instalación ni build; salida `out`. `vercel.json` configura `/api/earth` como función Node y límite de 60 segundos. La función sólo consulta dos dominios NASA fijos y valida coordenadas, tipo y tamaño del lote. No recibe claves ni URLs arbitrarias. Respuestas exitosas con caché CDN de 24 horas; errores sin caché.
-
-No publicar esta versión sólo en hosting estático: requiere la función incluida en `api/earth.js`.
-
-La delimitación de una zona consulta una celda de su centro o el punto elegido dentro; no es una agregación espacial. El expediente conserva `site.visualArea`. La búsqueda gratuita de Open-Meteo se usa como prototipo no comercial; para un servicio comercial revisar su plan/licencia.
+Documentación del piloto: `README-EVIDENCIA.md` y `DATA_EVIDENCE.md`.
