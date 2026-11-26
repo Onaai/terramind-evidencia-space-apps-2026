@@ -1,28 +1,57 @@
-# TerraMind Global · análisis por zonas
+# TerraMind Global 4 · Lite + Pro
 
-Versión del 24 de noviembre de 2026. Web: https://terramind-global.vercel.app
+Web: https://terramind-global.vercel.app
+Código: https://github.com/Onaai/terramind-evidencia-space-apps-2026
 
-Delimitá dos esquinas y elegí **Analizar zona seleccionada**. Series, anomalías, resúmenes anuales y conclusiones usan la media ponderada por superficie de las celdas intersectadas. CSV y JSON incluyen límites y cobertura; JSON conserva las respuestas NASA y sus hashes.
+## Usar
 
-- Clima: todas las celdas MERRA‑2 de la zona, hasta 400; 100% de superficie válida por mes. Precipitación en mm medios del área.
-- MODIS: todos los píxeles del recorte, QA por fecha, ≥95% de superficie válida. Límite aproximado 8 × 8 km (depende de proyección), sin cruce del antimeridiano, latitudes ±80°. El resto de la zona nunca se reemplaza por el punto central. Fuera del límite se muestra un error y se solicita reducir la selección.
-- Mann–Kendall se aplica a la serie zonal; si cambia la huella válida MODIS, se suspende el p-valor. La pendiente queda descriptiva.
-- Un cambio de zona cancela consultas anteriores y oculta sus resultados. Quitar zona vuelve a la consulta puntual.
+Buscá un lugar o delimitá un rectángulo. Elegí **Analizar zona seleccionada** y el indicador. Clima y vegetación se agregan por superficie; nunca se sustituye el rectángulo por su centro.
 
-Para ejecutar: Node 20 o posterior, `npm start`, abrir http://localhost:4180. Sin instalación de dependencias. Verificación: `npm test` y `npm run check`.
+- **Lite:** gráficos, tendencias y límites esenciales. QA estricto.
+- **Pro:** filtros de sensibilidad, cobertura por fecha, tabla científica y expediente JSON con procedencia.
+- Ambos modos usan el mismo motor científico y están disponibles sin cuenta ni pago.
+- Modo oscuro/claro y nivel de detalle se conservan en el navegador. Las animaciones respetan la preferencia de movimiento reducido.
 
-La ficha `/global-methodology.html` describe las fórmulas, límites de resolución y cobertura. El piloto archivado Chaco se conserva en `/pilot.html`.
+## Histórico MODIS recuperable
 
-Implementación posterior al prototipo del evento; no se presenta como trabajo realizado durante la competencia.
+Se consultan las 253 fechas nominales MOD13Q1 de 2015–2025. El servidor procesa una fecha y un bloque espacial por petición: descarga NASA, aplica QA a cada píxel, integra la intersección con la zona y devuelve acumuladores y procedencia compacta. Así no se envían grandes archivos crudos duplicados al navegador ni se concentran diez fechas en una función.
 
-## Fuentes y publicación
+Hasta **5.000 km² y 32 bloques**, según forma y proyección, a resolución MODIS original de 250 m nominales. Cada bloque tiene un recorte proyectado de hasta 12 km por lado. Límites: latitudes ±80°, sin cruce del antimeridiano en vegetación. El clima admite hasta 400 celdas MERRA‑2.
 
-Clima: NASA POWER/MERRA-2 (reanálisis, no GPM IMERG). Vegetación: NASA MOD13Q1 / ORNL DAAC; colección no confirmada individualmente contra CMR. El piloto archivado conserva su serie IMERG. No hay observaciones simuladas, predicciones de incendios ni causalidad atribuida.
+Máximo dos peticiones simultáneas, hasta tres intentos por bloque con espera creciente, tiempo máximo por petición y guardado en IndexedDB durante 30 días. Pausar, recargar o cerrar el navegador conserva los bloques recibidos cuando el almacenamiento está disponible. Cerrar el navegador pausa el trabajo: no hay un proceso en segundo plano que continúe con la página cerrada. **Retomar última zona** restaura la selección; consultá MODIS para continuar.
 
-Buscador Open-Meteo/GeoNames para este prototipo no comercial; fondo NASA GIBS u OpenStreetMap. Revisar licencias y planes antes de un uso comercial. El mapa no define la resolución del análisis.
+Los acumuladores se combinan antes de aplicar el umbral espacial del 95%. Los bordes compartidos no duplican superficie: cada bloque pondera sólo su intersección. La cifra de intersecciones píxel/bloque puede contar un mismo píxel de borde en dos bloques. Un fallo no se reemplaza por una muestra o simulación; las fechas sin todos los bloques quedan pendientes y se pueden reintentar sin perder el resto.
 
-Vercel: conectar el repositorio, framework Other, sin instalación ni build, salida `out`. `vercel.json` configura la función Node `/api/earth` con límite de 60 segundos por petición. El navegador descarga lotes con un máximo de dos peticiones simultáneas. No publicar sólo `out` en un hosting estático: se necesitan `api/earth.js` y `api/places.js`.
+El expediente MODIS contiene URL reproducible, fecha de recuperación, SHA-256 del texto crudo NASA, metadatos de grilla/bandas y resúmenes. **No contiene los archivos crudos MODIS**: se descargan desde las URLs originales. El clima conserva sus respuestas originales. Completar 253 fechas no significa que todas pasen QA ni que exista una tendencia significativa.
 
-GitHub: https://github.com/Onaai/terramind-evidencia-space-apps-2026
+## Ejecutar y verificar
 
-Documentación del piloto: `README-EVIDENCIA.md` y `DATA_EVIDENCE.md`.
+Node.js 22 o posterior, con Internet. Sin dependencias de instalación.
+
+```sh
+npm start
+npm test
+npm run check
+```
+
+Abrir http://127.0.0.1:4180. No abrir el HTML como archivo: las consultas requieren las funciones `api/`.
+
+Prueba real completa (no forma parte de los tests unitarios):
+
+```sh
+npm run test:modis-live
+```
+
+Recupera el histórico sobre 112 km², conserva bloques locales para reanudar y genera `VALIDATION-MODIS-V4.json`. Puede tardar varios minutos; NASA puede responder con fallos temporales. No se marca completa si falta una fecha.
+
+## Desplegar
+
+Vercel, framework Other, sin build ni instalación, salida `out`; funciones Node `api/earth.js`, `api/modis.js` y `api/places.js`. `vercel.json` limita las peticiones a 60 segundos. La caché CDN de los bloques MODIS dura 30 días; la fecha original de recuperación permanece en el comprobante. No publicar sólo `out/` en un hosting estático.
+
+## Fuentes y alcance
+
+NASA POWER/MERRA‑2 es reanálisis, no GPM IMERG. MODIS: MOD13Q1 / ORNL DAAC; colección no confirmada individualmente contra CMR. QA espacial ≥95% y cobertura temporal nominal ≥80% para resúmenes anuales de vegetación. Si varía la superficie válida, el p-valor zonal de vegetación se suspende. No se atribuyen causas ni se predicen incendios.
+
+Metodología completa: `/global-methodology.html`. Piloto Chaco e IMERG archivado: `/pilot.html`. Sin SMAP, alertas operativas ni polígonos libres. Open-Meteo/GeoNames y OpenStreetMap sirven para orientación; revisar sus licencias y planes antes de un uso comercial.
+
+Versión posterior al prototipo del evento; no se presenta como trabajo hecho durante la competencia. Emi + Tomi. Código y textos asistidos por IA; sin aval institucional NASA.

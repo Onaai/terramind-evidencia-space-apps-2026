@@ -1,9 +1,18 @@
 {
   "name": "terramind-global",
-  "version": "3.1.0",
+  "version": "4.0.0",
   "private": true,
   "type": "module",
   "description": "TerraMind Global · Exploración mundial de clima y vegetación NASA por punto y zona",
-  "scripts": {"start":"node scripts/serve-evidence.mjs", "test":"node --test tests-evidence/*.test.mjs", "check":"node scripts/check-evidence.mjs", "data":"python scripts/fetch_evidence.py", "data:offline":"python scripts/fetch_evidence.py --offline"},
-  "engines": {"node":">=20"}
+  "scripts": {
+    "start": "node scripts/serve-evidence.mjs",
+    "test": "node --test tests-evidence/*.test.mjs",
+    "check": "node scripts/check-evidence.mjs",
+    "data": "python scripts/fetch_evidence.py",
+    "data:offline": "python scripts/fetch_evidence.py --offline",
+    "test:modis-live": "node scripts/verify-modis-live.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
 }

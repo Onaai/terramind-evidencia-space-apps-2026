@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+<defs><radialGradient id="sea" cx=".28" cy=".25" r=".8"><stop stop-color="#639b83"/><stop offset=".55" stop-color="#214f48"/><stop offset="1" stop-color="#0a252e"/></radialGradient><radialGradient id="shade" cx=".15" cy=".2" r=".95"><stop offset=".4" stop-color="#05171c" stop-opacity="0"/><stop offset="1" stop-color="#05171c" stop-opacity=".9"/></radialGradient><clipPath id="sphere"><circle cx="100" cy="100" r="94"/></clipPath></defs>
+<circle cx="100" cy="100" r="94" fill="url(#sea)" stroke="#a9d4ba" stroke-opacity=".4"/>
+<g clip-path="url(#sphere)">
+<g fill="#aac99a" opacity=".72"><path d="M29 36 49 27 65 29 80 39 75 49 61 52 65 61 56 71 48 72 53 82 45 87 33 73 30 60 19 52Z"/><path d="m51 88 15 4 12 13 7 3-1 16-10 11-7 18-11 17-5-14 4-21-6-13-5-11Z"/><path d="m96 53 13-9 12 1 6-7 22 3 21 7 20 18-9 13-17-2-10 11-11-6-7 13-10-14-7-7-15 1-10-9Z"/><path d="m104 80 21 2 15 14-3 17-10 18-7 19-12-10-3-19-12-13 1-16Z"/><path d="m156 132 18-7 15 11-6 16-22 1-9-9Z"/><path d="m72 11 20 1 10 11-13 13-15-5Z"/></g>
+<g stroke="#bce3cc" stroke-opacity=".18" stroke-width=".7"><ellipse cx="100" cy="100" rx="35" ry="94"/><ellipse cx="100" cy="100" rx="69" ry="94"/><path d="M6 100h188M100 6v188"/><ellipse cx="100" cy="60" rx="87" ry="14"/><ellipse cx="100" cy="140" rx="87" ry="14"/><ellipse cx="100" cy="100" rx="94" ry="20"/></g>
+<circle cx="100" cy="100" r="94" fill="url(#shade)"/>
+</g></svg>

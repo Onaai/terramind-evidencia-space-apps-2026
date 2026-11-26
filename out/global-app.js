@@ -1,3 +1,6 @@
+import {tasksFor,runTasks,combineTiles} from './modis-jobs.js';
+import {readBlock,writeBlock,storageAvailable} from './local-cache.js';
+import {progress,coverageStrip,saveSelection} from './global-experience.js';
 import {areaKm2,climateCells,aggregateClimate,vegetationWindow,aggregateVegetation,areaVegetationAnalysis} from './global-area.js';
 import {setupMapControls,clearArea,selectedArea} from './global-map-controls.js';
 import {PRESETS,coordinates,parseClimate,parseVegetation,climateAnalysis,vegetationAnalysis} from './global-data.js';
@@ -6,11 +9,12 @@ const $=id=>document.getElementById(id);
 let site=null,climate=null,vegetation=null,receipts=[],result=null,chart=null,mode='series',controller=null,generation=0,map,marker;
 let selectedName='Gran Chaco · Argentina';
 const cache=new Map(),requestCache=new Map();
+let lastJob=null;
 const label={temp:'Temperatura',precip:'Precipitación',ndvi:'NDVI',evi:'EVI'};
 const climateVariable=()=>['temp','precip'].includes($('indicator').value);
 function status(message,error=false,target='status'){$(target).textContent=message;$(target).classList.toggle('error',error);}
-function busy(value){$('load').disabled=value;$('cancel').hidden=!value;}
-function invalidate(){generation++;controller?.abort();controller=null;busy(false);site=null;result=null;climate=null;vegetation=null;receipts=[];$('results').hidden=true;$('analysis').hidden=true;}
+function busy(value){$('load').disabled=value;$('cancel').hidden=!value;$('load').classList.toggle('working',value);$('load').setAttribute('aria-busy',String(value));}
+function invalidate(){generation++;controller?.abort();controller=null;busy(false);site=null;result=null;climate=null;vegetation=null;receipts=[];lastJob=null;$('job-progress').hidden=true;$('results').hidden=true;$('analysis').hidden=true;}
 function choose(lat,lon,name='Coordenadas personalizadas',keepArea=false){
   if(!keepArea)clearArea();selectedName=name;
   invalidate();const point=coordinates(lat,lon);$('latitude').value=point.lat;$('longitude').value=point.lon;
@@ -47,7 +51,7 @@ async function loadSource(){
   const kind=climateVariable()?'climate':'vegetation';
   if(kind==='climate'?climate:vegetation){render();return;}
   const key=JSON.stringify([site.lat,site.lon,site.area,kind]);
-  if(cache.has(key)){const saved=cache.get(key);if(kind==='climate')climate=saved.rows;else vegetation=saved.rows;receipts.push(...saved.receipts);render();return;}
+  if(cache.has(key)){const saved=cache.get(key);if(kind==='climate')climate=saved.rows;else{vegetation=saved.rows;lastJob=saved.job;site.modisJob=lastJob;}receipts.push(...saved.receipts);render();return;}
   controller?.abort();const token=++generation;controller=new AbortController();const signal=controller.signal;
   $('analysis').hidden=true;result=null;busy(true);$('export').disabled=true;
   status(kind==='climate'?'Consultando once años de clima NASA POWER…':'Consultando disponibilidad MODIS. Puede demorar unos minutos…',false,'source-status');
@@ -66,36 +70,35 @@ async function loadSource(){
       if(!rows.some(r=>r.temp!==null||r.precip!==null))throw new Error('NASA no entregó valores climáticos válidos en esta ubicación.');
       climate=rows;
     }else{
-      const window=site.area?vegetationWindow(site.area):null;
-      const requestSite=window?{lat:window.lat,lon:window.lon}:site;
-      const response=await get('dates',{lat:requestSite.lat,lon:requestSite.lon},signal);if(token!==generation)return;
-      const dates=(response.payload.dates||[]).filter(d=>/^A20\d{5}$/.test(d.modis_date)&&d.modis_date>='A2015001'&&d.modis_date<='A2025365').map(d=>d.modis_date).sort();
-      if(!dates.length)throw new Error('No hay compuestos MODIS terrestres disponibles para esta coordenada en 2015–2025. Probá otro lugar.');
-      if(new Set(dates).size!==dates.length)throw new Error('NASA devolvió fechas duplicadas.');
-      used=[response];rows=[];
-      // Respect the ten-date limit AND the maximum span even when acquisitions have gaps.
-      const batches=[];let batch=[];
-      const stamp=d=>Date.UTC(Number(d.slice(1,5)),0,Number(d.slice(5)));
-      for(const d of dates){if(batch.length&&(batch.length===10||stamp(d)-stamp(batch[0])>144*86400000)){batches.push(batch);batch=[];}batch.push(d);}if(batch.length)batches.push(batch);
-      for(let i=0;i<batches.length;i+=2){
-        status(`Vegetación MODIS · lotes ${i+1}–${Math.min(i+2,batches.length)} de ${batches.length}. Descargando valores y banderas de calidad…`,false,'source-status');
-        const blocks=await Promise.all(batches.slice(i,i+2).map(b=>get(kind,{start:b[0],end:b.at(-1),...(window||{})},signal)));if(token!==generation)return;
-        for(let j=0;j<blocks.length;j++){
-          const block=blocks[j],parsed=site.area?aggregateVegetation(block.payload,site.area,requestSite):parseVegetation(block.payload,site);
-          const allowed=new Set(batches[i+j].map(d=>new Date(stamp(d)).toISOString().slice(0,10)));
-          if(parsed.some(r=>!allowed.has(r.date)))throw new Error('NASA devolvió fechas fuera del lote solicitado.');
-          rows.push(...parsed);used.push(block);
-        }
+      const plan=tasksFor(site);site.modisTiles=plan.tiles.map(t=>({id:t.id,area:t.area,window:t.window}));
+      const persistent=await storageAvailable();
+      status(`Histórico 2015–2025 · ${plan.tiles.length} ${plan.tiles.length===1?'bloque espacial':'bloques espaciales'} · 253 fechas. ${persistent?'El avance queda guardado en este navegador.':'El navegador no permite guardar el avance entre sesiones.'}`,false,'source-status');
+      const outcome=await runTasks(plan.tasks,{signal,read:readBlock,write:writeBlock,
+        fetchTask:async(task,taskSignal)=>{
+          const params=new URLSearchParams({date:task.date,...(task.tile.area||{lat:site.lat,lon:site.lon})});
+          const response=await fetch('/api/modis?'+params,{signal:AbortSignal.any([taskSignal,AbortSignal.timeout(55000)])});
+          let body;try{body=await response.json();}catch{throw new Error('Respuesta temporal inválida; se reintentará el bloque.');}
+          if(!response.ok){const e=new Error(body.error||'La fuente no respondió.');e.retryable=body.retryable;throw e;}
+          const expected=new Date(Date.UTC(+task.date.slice(1,5),0,+task.date.slice(5))).toISOString().slice(0,10);
+          if(body.schema!=='modis-zonal-v4'||body.row?.date!==expected||!/^https:\/\/modis\.ornl\.gov\//.test(body.receipt?.url||'')||!/^[a-f0-9]{64}$/.test(body.receipt?.sha256||''))throw new Error('El bloque no coincide con la solicitud o su procedencia.');
+          return body;
+        },onProgress:p=>{if(token===generation)progress(p);}
+      });if(token!==generation)return;
+      rows=[];used=outcome.results.filter(Boolean).map(r=>r.receipt);
+      for(let i=0;i<253;i++){
+        const group=outcome.results.slice(i*plan.tiles.length,(i+1)*plan.tiles.length);
+        if(group.every(Boolean))rows.push(site.area?combineTiles(group.map(r=>r.row),site.area):group[0].row);
       }
-      if(new Set(rows.map(r=>r.date)).size!==rows.length)throw new Error('La serie tiene compuestos duplicados.');
+      lastJob={expectedDates:253,completeDates:rows.length,failed:outcome.failed,totalBlocks:plan.tasks.length,reused:outcome.reused};site.modisJob=lastJob;
+      if(!rows.length)throw new Error('Todavía no hay una fecha con todos los bloques. Reintentá: se conservan los bloques recibidos.');
       vegetation=rows;
     }
     if(token!==generation)return;
-    receipts.push(...used);cache.set(key,{rows,receipts:used});if(cache.size>10)cache.delete(cache.keys().next().value);
+    receipts.push(...used);cache.set(key,{rows,receipts:used,job:kind==='vegetation'?lastJob:null});if(cache.size>10)cache.delete(cache.keys().next().value);
     status('Datos recibidos de NASA para la ubicación indicada. Las respuestas originales se incluyen en el expediente.');render();
   }catch(error){
     if(token!==generation)return;
-    status(signal.aborted?'Consulta cancelada. Podés reintentar o elegir otro indicador.':error.message,true,'source-status');
+    status(signal.aborted?'Trabajo pausado. Los bloques MODIS recibidos quedan guardados; podés retomar esta zona.':error.message,true,'source-status');
     const retry=document.createElement('button');retry.type='button';retry.textContent='Reintentar esta fuente';retry.style.marginLeft='14px';retry.addEventListener('click',loadSource);$('source-status').append(retry);
   }finally{if(token===generation){busy(false);$('export').disabled=!receipts.length;}}
 }
@@ -104,7 +107,7 @@ $('location-form').addEventListener('submit',event=>{
   invalidate();site={...point,name:PRESETS[$('preset').value]?.name||selectedName,area:selectedArea?structuredClone(selectedArea):null};
   $('place-title').textContent=site.area?'Zona seleccionada':site.name;$('place-detail').textContent=site.area?`${fmt(areaKm2(site.area),2)} km² · promedio ponderado por superficie · 2015–2025`:`${site.lat}°, ${site.lon}° · Consulta puntual · 2015–2025`;
   $('results').hidden=false;marker?.setLatLng([site.lat,site.lon]);
-  const query=new URLSearchParams({lat:site.lat,lon:site.lon});if(site.area)for(const k of ['south','north','west','east'])query.set(k,site.area[k]);history.replaceState(null,'',`?${query}#explorer`);
+  const query=new URLSearchParams({lat:site.lat,lon:site.lon});if(site.area)for(const k of ['south','north','west','east'])query.set(k,site.area[k]);history.replaceState(null,'',`?${query}#explorer`);saveSelection(query);
   loadSource();
 });
 $('cancel').addEventListener('click',()=>controller?.abort());
@@ -120,18 +123,23 @@ function render(){
   $('analysis').hidden=false;$('export').disabled=false;
   const unit=variable==='temp'?'°C':variable==='precip'?'mm':'índice';
   const source=isClimate?'NASA POWER · MERRA‑2 · reanálisis mensual':'NASA / ORNL DAAC · MOD13Q1 · compuestos de 16 días';
-  status(isClimate?'Datos reales de reanálisis MERRA‑2. No son mediciones locales ni GPM IMERG. La disponibilidad mensual no equivale a calidad observacional.':`${result.quality.accepted} de ${result.quality.total} compuestos aceptados por QA. Colección no verificada individualmente contra CMR; no se asume una versión.`,false,'source-status');
+  status(isClimate?'Datos reales de reanálisis MERRA‑2. No son mediciones locales ni GPM IMERG. La disponibilidad mensual no equivale a calidad observacional.':`${result.quality.accepted} de ${result.quality.total} compuestos aceptados por QA (${$('quality').value==='strict'?'estricto':'ampliado'}). Colección no verificada individualmente contra CMR; no se asume una versión.`,false,'source-status');
   const trend=result.trend;if(site.area)trend.warning='Inferencia exploratoria del promedio zonal; no demuestra causalidad.';
-  if(site.area)status(isClimate?`Promedio zonal de ${climate[0].cells} celdas MERRA‑2, ponderadas por su intersección con ${fmt(areaKm2(site.area),2)} km². Cada mes exige 100% de cobertura. Lluvia en mm medios del área, no suma de celdas.`:`Promedio zonal MODIS de ${vegetation[0]?.cells??0} píxeles intersectados. QA por píxel; cada fecha exige ≥95% del área válida. Los píxeles excluidos no se rellenan. ${result.quality.accepted}/${result.quality.total} fechas aptas.`,false,'source-status');
+  if(site.area)status(isClimate?`Promedio zonal de ${climate[0].cells} celdas MERRA‑2, ponderadas por su intersección con ${fmt(areaKm2(site.area),2)} km². Cada mes exige 100% de cobertura. Lluvia en mm medios del área, no suma de celdas.`:`Promedio zonal MODIS de ${vegetation[0]?.cells??0} intersecciones píxel/bloque. QA por píxel; cada fecha exige ≥95% del área válida. Los píxeles excluidos no se rellenan. ${result.quality.accepted}/${result.quality.total} fechas aptas.`,false,'source-status');
+  if(!isClimate&&lastJob){
+    const note=document.createElement('p');note.textContent=`Histórico: ${lastJob.completeDates}/253 fechas completas · ${lastJob.totalBlocks} bloques de descarga. Los bloques espaciales pueden compartir píxeles de borde, pero sus pesos no se superponen.`;$('source-status').append(note);
+    if(lastJob.failed.length){const retry=document.createElement('button');retry.textContent=`Completar ${lastJob.failed.length} bloques pendientes`;retry.onclick=()=>{vegetation=null;cache.delete(JSON.stringify([site.lat,site.lon,site.area,'vegetation']));loadSource();};$('source-status').append(retry);$('source-status').classList.add('error');}
+  }
+  coverageStrip(result,!!site.area,variable);
   const significance=trend.eligible?(trend.significant?'Señal exploratoria':'Sin evidencia concluyente'):'Evidencia insuficiente';
-  const items=[['Qué medimos',label[variable],isClimate?'Serie mensual 2015–2025; elegí el período que querés revisar.':'Verdor de la vegetación. No diagnostica pérdida de bosque.'],['Dónde',site.area?`${fmt(areaKm2(site.area),2)} km²`:`${site.lat}°, ${site.lon}°`,site.area?`Toda la zona delimitada · ${isClimate?climate[0].cells:vegetation[0]?.cells??0} celdas intersectadas. Promedio de superficie válida.`:isClimate?'Una celda de grilla 0,5° × 0,625° nominales.':'Una celda MODIS de 250 m nominales.'],['Cuánto',Number.isFinite(trend.slope)?`${fmt(trend.slope,3)} ${unit}/año`:'No estimable','Pendiente de Sen sobre resúmenes anuales aptos.'],['¿Es significativo?',significance,trend.eligible?`p = ${formatP(trend.pValue)} · ${trend.n} años aptos. Exploratorio, sin ajuste por múltiples consultas.`:trend.reason]];
+  const items=[['Qué medimos',label[variable],isClimate?'Serie mensual 2015–2025; elegí el período que querés revisar.':'Verdor de la vegetación. No diagnostica pérdida de bosque.'],['Dónde',site.area?`${fmt(areaKm2(site.area),2)} km²`:`${site.lat}°, ${site.lon}°`,site.area?`Toda la zona delimitada · ${isClimate?climate[0].cells:vegetation[0]?.cells??0} ${isClimate?'celdas':'intersecciones píxel/bloque'}. Promedio de superficie válida.`:isClimate?'Una celda de grilla 0,5° × 0,625° nominales.':'Una celda MODIS de 250 m nominales.'],['Cuánto',Number.isFinite(trend.slope)?`${fmt(trend.slope,3)} ${unit}/año`:'No estimable','Pendiente de Sen sobre resúmenes anuales aptos.'],['¿Es significativo?',significance,trend.eligible?`p = ${formatP(trend.pValue)} · ${trend.n} años aptos. Exploratorio, sin ajuste por múltiples consultas.`:trend.reason]];
   $('findings').innerHTML=items.map(([title,value,note])=>`<article class="finding"><span>${esc(title)}</span><strong>${esc(value)}</strong><p>${esc(note)}</p></article>`).join('');
   document.querySelector('.chart-key').innerHTML=mode==='annual'?'<span>━━ Resumen anual apto</span><span>┄ Pendiente de Sen</span><span>× Año no apto</span>':mode==='anomaly'?'<span>Verde: sobre la referencia</span><span>Ámbar: bajo la referencia</span><span>× Ausente o excluido</span>':'<span>━━ Valores aceptados</span><span>┄ Referencia 2015–2020</span><span>× Ausente o excluido</span>';
   $('chart-source').textContent=source;$('global-chart-heading').textContent=`${label[variable]} · ${site.area?'promedio zonal · ':''}${start}–${end}`;
   chart=renderChart($('chart'),result,mode,{description:`${source}. ${site.area?'Promedio ponderado de toda la zona seleccionada':'Consulta puntual en '+site.lat+', '+site.lon}. ${start}–${end}. Huecos conservados.`,onFocus:row=>{$('readout').textContent=`${row.date} · ${fmt(row.displayValue,variable==='precip'?1:3)} ${unit}${row.accepted?'':' · Ausente o excluido'}${mode==='anomaly'?' de anomalía':''}${site.area&&mode!=='annual'?' · cobertura espacial '+fmt(100*(row.coverage??row[variable+'Coverage']??0),1)+'%':''}`;}});
   $('cursor').max=Math.max(0,chart.rows.length-1);$('cursor').value='0';chart.focus(0);
   const sourceReceipts=receipts.filter(r=>r.kind===(isClimate?'climate':'vegetation'));
-  $('professional').innerHTML=`<p><b>${esc(source)}</b><br>${esc(trend.reason)}</p><p>${isClimate?'Años aptos: doce meses válidos. Temperatura anual ponderada por días. Lluvia mensual derivada del promedio diario, anual sumada. POWER no entrega QA por observación en esta consulta.':'Filtro QA MODIS antes del análisis; años con ≥80% de cobertura nominal y presencia en los cuatro trimestres estacionales. El filtro ampliado es una prueba de sensibilidad.'} No se atribuyen causas. No se combinan celdas de diferente resolución.</p><p>Recuperado: ${esc(sourceReceipts[0]?.retrievedAt||'Sin fecha')} · ${sourceReceipts.length} respuestas originales. Hash SHA‑256 incluido en el expediente.</p><p>Fuente informada en la respuesta: ${esc(isClimate?JSON.stringify(sourceReceipts[0]?.payload?.header?.sources||[]):'MOD13Q1; conservar metadatos de cada respuesta.')}</p><p><a href="${esc(sourceReceipts[0]?.url||'#')}" target="_blank" rel="noopener">Repetir la primera consulta a NASA</a></p>`;
+  $('professional').innerHTML=`<p><b>${esc(source)}</b><br>${esc(trend.reason)}</p><p>${isClimate?'Años aptos: doce meses válidos. Temperatura anual ponderada por días. Lluvia mensual derivada del promedio diario, anual sumada. POWER no entrega QA por observación en esta consulta.':'Filtro QA MODIS antes del análisis; años con ≥80% de cobertura nominal y presencia en los cuatro trimestres estacionales. El filtro ampliado es una prueba de sensibilidad.'} No se atribuyen causas. No se combinan celdas de diferente resolución. Lite y Pro usan el mismo cálculo y los mismos criterios de calidad.</p><p>Recuperado: ${esc(sourceReceipts[0]?.retrievedAt||'Sin fecha')} · ${sourceReceipts.length} comprobantes de origen. Hash SHA‑256 incluido en el expediente. Para MODIS se conserva el resumen y la URL reproducible; los archivos crudos se procesan en el servidor y no se incluyen en el JSON.</p><p>Fuente informada en la respuesta: ${esc(isClimate?JSON.stringify(sourceReceipts[0]?.payload?.header?.sources||[]):'MOD13Q1; conservar metadatos de cada respuesta.')}</p><p><a href="${esc(sourceReceipts[0]?.url||'#')}" target="_blank" rel="noopener">Repetir la primera consulta a NASA</a></p>`;
   if(site.area)$('professional').insertAdjacentHTML('afterbegin',`<p><b>Agregación zonal real · ${fmt(areaKm2(site.area),2)} km²</b><br>Límites: ${esc(JSON.stringify(site.area))}. Pesos de intersección por superficie. ${isClimate?'Grilla MERRA‑2 completa; si falta una celda, ese mes queda ausente. Una zona menor que una celda no aporta más detalle.':'Recorte en proyección sinusoidal MODIS; integración numérica de bordes. Umbral espacial 95%; no es cobertura de días observados. Una huella válida cambiante puede introducir sesgo: se suspende el p-valor en ese caso.'}</p>`);
   $('rows').innerHTML=result.series.map(r=>`<tr><td>${r.date}</td><td>${esc(fmt(r.value,3))}</td><td>${r.accepted?'Aceptado':esc(r.reason||'Ausente o excluido')}</td><td>${esc(fmt(r.anomaly,3))}</td><td>${site.area?fmt(100*(r.coverage??r[variable+'Coverage']??0),1)+'%':'—'}</td></tr>`).join('');
 }

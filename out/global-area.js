@@ -32,20 +32,20 @@ export function aggregateClimate(cells,responses,a){
   });
 }
 // MODIS sinusoidal projection: x=R*longitude*cos(latitude), y=R*latitude.
-export function vegetationWindow(a){
+export function vegetationWindow(a,limit=5){
   validateArea(a);
   if(a.west< -180||a.east>180||Math.max(Math.abs(a.south),Math.abs(a.north))>80)throw new Error('La agregación MODIS de esta versión requiere una zona entre 80° S y 80° N que no cruce el antimeridiano. El clima sí admite esos límites.');
   const lat=(a.south+a.north)/2,lon=(a.west+a.east)/2,x=R*lon*RAD*Math.cos(lat*RAD),y=R*lat*RAD;
   const lats=[a.south,a.north,...(a.south<0&&a.north>0?[0]:[])];
   const xs=lats.flatMap(t=>[a.west,a.east].map(l=>R*l*RAD*Math.cos(t*RAD)));
-  const kmAboveBelow=Math.ceil(Math.max(y-R*a.south*RAD,R*a.north*RAD-y)/1000+.5);
-  const kmLeftRight=Math.ceil(Math.max(...xs.map(v=>Math.abs(v-x)))/1000+.5);
-  if(kmAboveBelow>5||kmLeftRight>5)throw new Error('Para MODIS, reducí la zona a aproximadamente 8 × 8 km (el límite depende de la proyección). Se procesan todos sus píxeles de 250 m; no se usa el centro. El clima admite zonas mucho mayores.');
+  const kmAboveBelow=Math.ceil(Math.max(y-R*a.south*RAD,R*a.north*RAD-y)/926.625433056+.75);
+  const kmLeftRight=Math.ceil(Math.max(...xs.map(v=>Math.abs(v-x)))/926.625433056+.75);
+  if(kmAboveBelow>limit||kmLeftRight>limit)throw new Error('Para MODIS, reducí la zona a aproximadamente 8 × 8 km (el límite depende de la proyección). Se procesan todos sus píxeles de 250 m; no se usa el centro. El clima admite zonas mucho mayores.');
   return {lat,lon,kmAboveBelow,kmLeftRight};
 }
 export function pixelWeights(p,a){
   validateArea(a);const size=Number(p.cellsize),x0=Number(p.xllcorner),y0=Number(p.yllcorner),nr=p.nrows,nc=p.ncols;
-  if(!Number.isInteger(nr)||!Number.isInteger(nc)||nr<1||nc<1||nr*nc>2500||![size,x0,y0].every(Number.isFinite)||Math.abs(size-231.656358264)>.01)throw new Error('Grilla MODIS inválida o demasiado grande.');
+  if(!Number.isInteger(nr)||!Number.isInteger(nc)||nr<1||nc<1||nr*nc>20000||![size,x0,y0].every(Number.isFinite)||Math.abs(size-231.656358264)>.01)throw new Error('Grilla MODIS inválida o demasiado grande.');
   const weights=[];
   for(let row=0;row<nr;row++)for(let col=0;col<nc;col++){
     const lo=Math.max(y0+(nr-row-1)*size,R*a.south*RAD),hi=Math.min(y0+(nr-row)*size,R*a.north*RAD),left=x0+col*size,right=left+size;
@@ -74,7 +74,7 @@ export function aggregateVegetation(p,a,site){
       weights.forEach((w,i)=>{if(w<=1e-12)return;const point={availability:'returned'};for(const [key,data] of Object.entries(bands))point[key]=data[i];point.ndvi=point.rawNdvi*.0001;point.evi=point.rawEvi*.0001;
         if(qualityDecision(point,{variable,quality}).accepted){sum+=point[variable]*w;valid+=w;count++;}});
       const coverage=Math.min(1,valid/total);
-      out.aggregates[quality+'-'+variable]={value:coverage>=.95?sum/valid:null,coverage,validCells:count};
+      out.aggregates[quality+'-'+variable]={value:coverage>=.95?sum/valid:null,coverage,validCells:count,weightedSum:sum,validAreaKm2:valid};
     }return out;
   });
 }

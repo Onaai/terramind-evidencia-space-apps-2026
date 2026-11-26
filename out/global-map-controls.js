@@ -11,7 +11,7 @@ export function setupMapControls(L,map,onSelect){
     rectangle=L.rectangle([[area.south,area.west],[area.north,area.east]],{color:'#edb856',weight:2,fillOpacity:.12,interactive:false}).addTo(map);
     draw=false;first=null;$('draw-area').textContent='Delimitar zona';$('draw-area').setAttribute('aria-pressed','false');
     onSelect(area.center.lat,area.center.lon,'Zona seleccionada',true);
-    note(`Zona elegida: ${area.south.toFixed(3)}° a ${area.north.toFixed(3)}° de latitud. La consulta analizará toda la zona ponderando las celdas por superficie. Clima: hasta 400 celdas. MODIS: zonas de aproximadamente 8 × 8 km.`);
+    note(`Zona elegida: ${area.south.toFixed(3)}° a ${area.north.toFixed(3)}° de latitud. La consulta analizará toda la zona ponderando las celdas por superficie. Clima: hasta 400 celdas. MODIS: hasta 5.000 km², dividido en hasta 32 bloques recuperables.`);
   };
   $('draw-area').onclick=()=>{if(draw){clearArea();onSelect(Number($('latitude').value),Number($('longitude').value));return;}clearArea();onSelect(Number($('latitude').value),Number($('longitude').value));draw=true;$('draw-area').textContent='Cancelar delimitación';$('draw-area').setAttribute('aria-pressed','true');note('Tocá una esquina y después la esquina opuesta de la zona. Podés mover y acercar el mapa entre ambos toques.');};
   $('clear-area').onclick=()=>{clearArea();onSelect(Number($('latitude').value),Number($('longitude').value),'Punto personalizado');};
